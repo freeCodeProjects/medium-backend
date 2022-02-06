@@ -1,0 +1,25 @@
+{
+	"name": "medium-backend",
+	"version": "1.0.0",
+	"description": "backend for medium clone website",
+	"main": "index.js",
+	"repository": "https://github.com/SchoolOfProjects/medium-backend.git",
+	"author": "Akash Kumar Seth",
+	"license": "MIT",
+	"private": true,
+	"scripts": {
+		"dev": "ts-node-dev --respawn --transpile-only src/index.ts",
+		"build": "tsc"
+	},
+	"dependencies": {
+		"dotenv": "^16.0.0",
+		"express": "^4.17.2",
+		"pino": "^7.6.5",
+		"pino-pretty": "^7.5.1"
+	},
+	"devDependencies": {
+		"@types/express": "^4.17.13",
+		"ts-node-dev": "^1.1.8",
+		"typescript": "^4.5.5"
+	}
+}
