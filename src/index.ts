@@ -1,15 +1,15 @@
 require('dotenv').config()
-import express, { Request, Response } from 'express'
-
+import express from 'express'
 import { logger } from './utils/logger'
+import router from './routes/index'
+import { connectToDb } from './utils/connectToDb'
 
-const app = express()
 const port = process.env.PORT || 3001
-
-app.get('/healthcheck', (req: Request, res: Response) => {
-	res.status(200).send('Server is running!')
-})
+const app = express()
+app.use(express.json())
+app.use(router)
 
 app.listen(port, () => {
 	logger.info('Server is up on port ' + port)
+	connectToDb()
 })
