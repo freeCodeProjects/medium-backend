@@ -20,4 +20,11 @@ export const CreateUserSchema = object({
 	})
 })
 
+export const VerifyUserSchema = object({
+	query: object({
+		token: string({ required_error: 'Token is required' })
+	})
+})
+
 export type CreateUserInput = TypeOf<typeof CreateUserSchema>['body']
+export type VerifyUserInput = TypeOf<typeof VerifyUserSchema>['query']

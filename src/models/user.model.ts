@@ -11,30 +11,35 @@ export interface User {
 	password: string
 	photo: string
 	verified: boolean
+	notification: number
+	tokens: string[]
 	verificationId?: string
 	bio?: string
 	followers?: Types.ObjectId[]
 	following?: Types.ObjectId[]
 	previouslyRead?: Types.ObjectId[]
 	bookmarks?: Types.ObjectId[]
-	notification: Number
 }
 
-const UserSchema = new Schema<User>({
-	name: { type: String, required: true, trim: true },
-	email: { type: String, required: true, trim: true, unique: true },
-	userName: { type: String, required: true, trim: true, unique: true },
-	password: { type: String, required: true, minlength: 6, trim: true },
-	photo: { type: String, required: true, trim: true },
-	verified: { type: Boolean, required: true, default: false },
-	verificationId: { type: String, default: () => nanoid() },
-	bio: { type: String, trim: true },
-	notification: { type: Number, default: 0 },
-	followers: [{ type: Schema.Types.ObjectId, ref: 'User' }],
-	following: [{ type: Schema.Types.ObjectId, ref: 'User' }],
-	previouslyRead: [{ type: Schema.Types.ObjectId, ref: 'Blog' }],
-	bookmarks: [{ type: Schema.Types.ObjectId, ref: 'Blog' }]
-})
+const UserSchema = new Schema<User>(
+	{
+		name: { type: String, required: true, trim: true },
+		email: { type: String, required: true, trim: true, unique: true },
+		userName: { type: String, required: true, trim: true, unique: true },
+		password: { type: String, required: true, minlength: 6, trim: true },
+		photo: { type: String, required: true, trim: true },
+		verified: { type: Boolean, required: true, default: false },
+		verificationId: { type: String, default: () => nanoid() },
+		bio: { type: String, trim: true },
+		notification: { type: Number, default: 0 },
+		followers: [{ type: Schema.Types.ObjectId, ref: 'User' }],
+		following: [{ type: Schema.Types.ObjectId, ref: 'User' }],
+		previouslyRead: [{ type: Schema.Types.ObjectId, ref: 'Blog' }],
+		bookmarks: [{ type: Schema.Types.ObjectId, ref: 'Blog' }],
+		tokens: [{ token: { type: String, required: true } }]
+	},
+	{ timestamps: true }
+)
 
 UserSchema.virtual('blogs', {
 	ref: 'Blog',
