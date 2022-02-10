@@ -19,6 +19,7 @@ export interface User {
 	following?: Types.ObjectId[]
 	previouslyRead?: Types.ObjectId[]
 	bookmarks?: Types.ObjectId[]
+	comparePassword(candidatePassword: string): Promise<Boolean>
 }
 
 const UserSchema = new Schema<User>(
@@ -65,6 +66,7 @@ UserSchema.methods.toJSON = function () {
 	delete userObject.verificationId
 	delete userObject.verified
 	delete userObject.__v
+	delete userObject.tokens
 	return userObject
 }
 

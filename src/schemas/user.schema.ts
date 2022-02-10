@@ -26,5 +26,17 @@ export const VerifyUserSchema = object({
 	})
 })
 
+export const LoginUserSchema = object({
+	body: object({
+		email: string({ required_error: 'Email is required' }).email({
+			message: 'Invalid email address'
+		}),
+		password: string({ required_error: 'Password is required' }).min(6, {
+			message: 'Must be 6 or more characters long'
+		})
+	})
+})
+
 export type CreateUserInput = TypeOf<typeof CreateUserSchema>['body']
 export type VerifyUserInput = TypeOf<typeof VerifyUserSchema>['query']
+export type LoginUserInput = TypeOf<typeof LoginUserSchema>['body']

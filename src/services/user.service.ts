@@ -19,10 +19,25 @@ export async function getUserByVerificationId(
 ): Promise<User | null> {
 	return UserModel.findOneAndUpdate(
 		{ verificationId, verified: false },
-		{ verificationId, verified: false }
+		{ verificationId: '', verified: true }
 	)
 }
 
 export async function addAuthToken(_id: Types.ObjectId, token: string) {
 	return UserModel.findOneAndUpdate({ _id }, { $push: { tokens: { token } } })
+}
+
+export async function removeAuthToken(_id: Types.ObjectId, token: string) {
+	return UserModel.findOneAndUpdate({ _id }, { $pull: { tokens: { token } } })
+}
+
+export async function getUserByEmail(email: string): Promise<User | null> {
+	return UserModel.findOne({ email })
+}
+
+export async function getUserByIdAndToken(
+	_id: string,
+	token: string
+): Promise<User | null> {
+	return UserModel.findOne({ _id, 'tokens.token': token })
 }
