@@ -19,6 +19,7 @@ import {
 import { logger } from '../utils/logger'
 import { User } from '../models/user.model'
 import { nanoid } from 'nanoid'
+import { decodeBase64, encodeBase64 } from '../utils/helper'
 
 export async function createUserHandler(
 	req: Request<{}, {}, CreateUserInput>,
@@ -27,7 +28,13 @@ export async function createUserHandler(
 	const body = req.body
 	try {
 		const user = await createUser(body)
-		const buttonURL = `http://localhost:3001/api/verifyUser?token=${user.verificationId}`
+		const token = encodeBase64(
+			JSON.stringify({
+				_id: user._id,
+				verificationId: user.verificationId
+			})
+		)
+		const buttonURL = `http://localhost:3001/api/verifyUser?token=${token}`
 		const htmlData = signupEmailTemplate(buttonURL)
 		sendEmail('Medium account verification.', htmlData, user.email, user.name)
 		return res.status(200).send(user)
@@ -62,10 +69,11 @@ export async function verifyUserHandler(
 	req: Request<{}, {}, {}, VerifyUserInput>,
 	res: Response
 ) {
-	const verificationId = req.query.token
+	//tokenData {_id: 'df...aq', verificationId: 'dfs...ytu'}
+	const tokenData = JSON.parse(decodeBase64(req.query.token))
 	//mark user as verified
 	const user = await findAndUpdateUser(
-		{ verificationId, verified: false },
+		{ ...tokenData, verified: false },
 		{ verificationId: '', verified: true }
 	)
 	if (!user) {
@@ -82,7 +90,7 @@ export async function loginUserHandler(
 ) {
 	const body = req.body
 	try {
-		const user = await findUser({ email: body.email })
+		const user = await findUser({ email: body.email }, { lean: false })
 		if (!user) {
 			return res.status(404).send('User not Found')
 		} else {
@@ -128,10 +136,16 @@ export async function ResetPasswordMailHandler(
 		if (!user) {
 			return res.status(404).send('User not Found')
 		} else {
-			const url = `http://localhost:3001/resetPassword?token=${id}`
+			const token = encodeBase64(
+				JSON.stringify({
+					_id: user._id,
+					verificationId: user.verificationId
+				})
+			)
+			const buttonURL = `http://localhost:3001/api/resetpassword?token=${token}`
 			await sendEmail(
 				'Reset password',
-				passwordResetTemplate(url),
+				passwordResetTemplate(buttonURL),
 				user.email,
 				user.name
 			)
