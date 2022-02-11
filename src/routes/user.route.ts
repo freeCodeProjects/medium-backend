@@ -3,10 +3,12 @@ import {
 	createUserHandler,
 	loginUserHandler,
 	logoutUserHandler,
+	ResetPasswordMailHandler,
 	verifyUserHandler
 } from '../controllers/user.controller'
 import { authMiddleware } from '../middlewares/authMiddleware'
 import { validateResource } from '../middlewares/validateResource'
+import { ResetPasswordMailSchema } from '../schemas/user.schema'
 import {
 	CreateUserSchema,
 	LoginUserSchema,
@@ -30,5 +32,11 @@ router.get(
 router.post('/api/login', validateResource(LoginUserSchema), loginUserHandler)
 
 router.delete('/api/logout', authMiddleware, logoutUserHandler)
+
+router.post(
+	'/api/resetpasswordmail',
+	validateResource(ResetPasswordMailSchema),
+	ResetPasswordMailHandler
+)
 
 export default router

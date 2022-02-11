@@ -1,22 +1,24 @@
 import { Request, Response } from 'express'
 import {
-	addAuthToken,
 	createUser,
-	getUserByEmail,
-	getUserByVerificationId,
-	removeAuthToken
+	findAndUpdateUser,
+	findUser
 } from '../services/user.service'
 import {
 	CreateUserInput,
 	VerifyUserInput,
-	LoginUserInput
+	LoginUserInput,
+	ResetPasswordMailInput
 } from '../schemas/user.schema'
 import { generateAuthToken } from '../utils/jwt'
 import { sendEmail } from '../utils/emailer'
-import { signupEmailTemplate } from '../utils/emailTemplate'
+import {
+	passwordResetTemplate,
+	signupEmailTemplate
+} from '../utils/emailTemplate'
 import { logger } from '../utils/logger'
 import { User } from '../models/user.model'
-import { Types } from 'mongoose'
+import { nanoid } from 'nanoid'
 
 export async function createUserHandler(
 	req: Request<{}, {}, CreateUserInput>,
@@ -41,7 +43,7 @@ export async function createUserHandler(
 async function getUserDataWithToken(user: User) {
 	const token = await generateAuthToken({ id: user._id.toString() })
 	//add auth token to user document
-	await addAuthToken(user._id, token)
+	await findAndUpdateUser({ _id: user._id }, { $push: { tokens: { token } } })
 	const result = {
 		user: {
 			id: user._id,
@@ -61,7 +63,11 @@ export async function verifyUserHandler(
 	res: Response
 ) {
 	const verificationId = req.query.token
-	const user = await getUserByVerificationId(verificationId)
+	//mark user as verified
+	const user = await findAndUpdateUser(
+		{ verificationId, verified: false },
+		{ verificationId: '', verified: true }
+	)
 	if (!user) {
 		res.status(404).send('User not Found')
 	} else {
@@ -76,7 +82,7 @@ export async function loginUserHandler(
 ) {
 	const body = req.body
 	try {
-		const user = await getUserByEmail(body.email)
+		const user = await findUser({ email: body.email })
 		if (!user) {
 			return res.status(404).send('User not Found')
 		} else {
@@ -93,14 +99,46 @@ export async function loginUserHandler(
 
 export async function logoutUserHandler(req: Request, res: Response) {
 	try {
-		const user = await removeAuthToken(req.user?._id!, req.token!)
+		const user = await findAndUpdateUser(
+			{ _id: req.user?._id },
+			{ $pull: { tokens: { token: req.token } } }
+		)
 		if (!user) {
 			return res.status(404).send('User not Found')
 		} else {
 			return res.status(200).send('Logout successful.')
 		}
 	} catch (e: any) {
-		logger.error(`loginUserHandler ${JSON.stringify(e)}`)
+		logger.error(`logoutUserHandler ${JSON.stringify(e)}`)
+		return res.status(500).send(e)
+	}
+}
+
+export async function ResetPasswordMailHandler(
+	req: Request<{}, {}, ResetPasswordMailInput>,
+	res: Response
+) {
+	try {
+		const body = req.body
+		const id = nanoid()
+		const user = await findAndUpdateUser(
+			{ email: body.email },
+			{ verificationId: id }
+		)
+		if (!user) {
+			return res.status(404).send('User not Found')
+		} else {
+			const url = `http://localhost:3001/resetPassword?token=${id}`
+			await sendEmail(
+				'Reset password',
+				passwordResetTemplate(url),
+				user.email,
+				user.name
+			)
+			return res.status(200).send('Mail send successful.')
+		}
+	} catch (e: any) {
+		logger.error(`logoutUserHandler ${JSON.stringify(e)}`)
 		return res.status(500).send(e)
 	}
 }

@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from 'express'
-import { getUserByIdAndToken } from '../services/user.service'
+import { findUser } from '../services/user.service'
 import { verifyAuthToken } from '../utils/jwt'
 
 export async function authMiddleware(
@@ -13,11 +13,13 @@ export async function authMiddleware(
 			return res.status(403).send('A token is required for authentication')
 		}
 		const decode = await verifyAuthToken(token)
-		const user = await getUserByIdAndToken((<{ id: string }>decode).id, token)
+		const user = await findUser({
+			_id: (<{ id: string }>decode).id,
+			'tokens.token': token
+		})
 		if (!user) {
 			throw new Error()
 		}
-
 		req.token = token
 		req.user = user
 		next()

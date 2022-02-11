@@ -37,6 +37,17 @@ export const LoginUserSchema = object({
 	})
 })
 
+export const ResetPasswordMailSchema = object({
+	body: object({
+		email: string({ required_error: 'Email is required' }).email({
+			message: 'Invalid email address'
+		})
+	})
+})
+
 export type CreateUserInput = TypeOf<typeof CreateUserSchema>['body']
 export type VerifyUserInput = TypeOf<typeof VerifyUserSchema>['query']
 export type LoginUserInput = TypeOf<typeof LoginUserSchema>['body']
+export type ResetPasswordMailInput = TypeOf<
+	typeof ResetPasswordMailSchema
+>['body']

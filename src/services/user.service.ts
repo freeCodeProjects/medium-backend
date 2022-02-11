@@ -1,6 +1,6 @@
 import UserModel, { User } from '../models/user.model'
 import { customAlphabet } from 'nanoid'
-import { Types } from 'mongoose'
+import { FilterQuery, QueryOptions, UpdateQuery } from 'mongoose'
 
 export async function createUser(input: Partial<User>): Promise<User> {
 	const nanoid = customAlphabet('abcdefghijklmnopqrstuvwxyz', 5)
@@ -14,30 +14,17 @@ export async function createUser(input: Partial<User>): Promise<User> {
 	})
 }
 
-export async function getUserByVerificationId(
-	verificationId: string
+export async function findUser(
+	query: FilterQuery<User>,
+	options: QueryOptions = { lean: true }
 ): Promise<User | null> {
-	return UserModel.findOneAndUpdate(
-		{ verificationId, verified: false },
-		{ verificationId: '', verified: true }
-	)
+	return UserModel.findOne(query, options)
 }
 
-export async function addAuthToken(_id: Types.ObjectId, token: string) {
-	return UserModel.findOneAndUpdate({ _id }, { $push: { tokens: { token } } })
-}
-
-export async function removeAuthToken(_id: Types.ObjectId, token: string) {
-	return UserModel.findOneAndUpdate({ _id }, { $pull: { tokens: { token } } })
-}
-
-export async function getUserByEmail(email: string): Promise<User | null> {
-	return UserModel.findOne({ email })
-}
-
-export async function getUserByIdAndToken(
-	_id: string,
-	token: string
+export async function findAndUpdateUser(
+	condition: FilterQuery<User>,
+	update: UpdateQuery<User>,
+	options: QueryOptions = {}
 ): Promise<User | null> {
-	return UserModel.findOne({ _id, 'tokens.token': token })
+	return UserModel.findOneAndUpdate(condition, update, options)
 }
