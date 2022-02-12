@@ -20,6 +20,7 @@ export interface User {
 	previouslyRead?: Types.ObjectId[]
 	bookmarks?: Types.ObjectId[]
 	comparePassword(candidatePassword: string): Promise<Boolean>
+	save(): Promise<User>
 }
 
 const UserSchema = new Schema<User>(

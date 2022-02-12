@@ -20,6 +20,7 @@ import { logger } from '../utils/logger'
 import { User } from '../models/user.model'
 import { nanoid } from 'nanoid'
 import { decodeBase64, encodeBase64 } from '../utils/helper'
+import { ResetPasswordInput } from '../schemas/user.schema'
 
 export async function createUserHandler(
 	req: Request<{}, {}, CreateUserInput>,
@@ -69,18 +70,23 @@ export async function verifyUserHandler(
 	req: Request<{}, {}, {}, VerifyUserInput>,
 	res: Response
 ) {
-	//tokenData {_id: 'df...aq', verificationId: 'dfs...ytu'}
-	const tokenData = JSON.parse(decodeBase64(req.query.token))
-	//mark user as verified
-	const user = await findAndUpdateUser(
-		{ ...tokenData, verified: false },
-		{ verificationId: '', verified: true }
-	)
-	if (!user) {
-		res.status(404).send('User not Found')
-	} else {
-		const result = await getUserDataWithToken(user)
-		res.status(200).send(result)
+	try {
+		//tokenData {_id: 'df...aq', verificationId: 'dfs...ytu'}
+		const tokenData = JSON.parse(decodeBase64(req.query.token))
+		//mark user as verified
+		const user = await findAndUpdateUser(
+			{ ...tokenData, verified: false },
+			{ verificationId: '', verified: true }
+		)
+		if (!user) {
+			res.status(404).send('User not Found')
+		} else {
+			const result = await getUserDataWithToken(user)
+			res.status(200).send(result)
+		}
+	} catch (e: any) {
+		logger.error(`verifyUserHandler ${JSON.stringify(e)}`)
+		return res.status(500).send(e)
 	}
 }
 
@@ -122,16 +128,16 @@ export async function logoutUserHandler(req: Request, res: Response) {
 	}
 }
 
-export async function ResetPasswordMailHandler(
+export async function resetPasswordMailHandler(
 	req: Request<{}, {}, ResetPasswordMailInput>,
 	res: Response
 ) {
 	try {
 		const body = req.body
-		const id = nanoid()
+		const newVerificationId = nanoid()
 		const user = await findAndUpdateUser(
 			{ email: body.email },
-			{ verificationId: id }
+			{ verificationId: newVerificationId }
 		)
 		if (!user) {
 			return res.status(404).send('User not Found')
@@ -139,7 +145,7 @@ export async function ResetPasswordMailHandler(
 			const token = encodeBase64(
 				JSON.stringify({
 					_id: user._id,
-					verificationId: user.verificationId
+					verificationId: newVerificationId
 				})
 			)
 			const buttonURL = `http://localhost:3001/api/resetpassword?token=${token}`
@@ -153,6 +159,32 @@ export async function ResetPasswordMailHandler(
 		}
 	} catch (e: any) {
 		logger.error(`logoutUserHandler ${JSON.stringify(e)}`)
+		return res.status(500).send(e)
+	}
+}
+
+export async function resetPasswordHandler(
+	req: Request<{}, {}, ResetPasswordInput>,
+	res: Response
+) {
+	try {
+		const { token, password } = req.body
+		//tokenData {_id: 'df...aq', verificationId: 'dfs...ytu'}
+		const tokenData = JSON.parse(decodeBase64(token))
+		//mark user as verified
+		const user = await findUser({ ...tokenData }, { lean: false })
+		if (!user) {
+			res.status(404).send('User not Found')
+		} else {
+			//save is used so that pre hook on save will run
+			user.verificationId = ''
+			user.password = password
+			await user.save()
+
+			res.status(200).send('Password reset successful.')
+		}
+	} catch (e: any) {
+		logger.error(`resetPasswordHandler ${JSON.stringify(e)}`)
 		return res.status(500).send(e)
 	}
 }

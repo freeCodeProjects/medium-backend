@@ -45,9 +45,25 @@ export const ResetPasswordMailSchema = object({
 	})
 })
 
+export const ResetPasswordSchema = object({
+	body: object({
+		token: string(),
+		password: string({ required_error: 'Password is required' }).min(6, {
+			message: 'Must be 6 or more characters long'
+		}),
+		confirmPassword: string({ required_error: 'Password is required' }).min(6, {
+			message: 'Must be 6 or more characters long'
+		})
+	}).refine(({ password, confirmPassword }) => password === confirmPassword, {
+		message: "Passwords don't match",
+		path: ['confirmPassword']
+	})
+})
+
 export type CreateUserInput = TypeOf<typeof CreateUserSchema>['body']
 export type VerifyUserInput = TypeOf<typeof VerifyUserSchema>['query']
 export type LoginUserInput = TypeOf<typeof LoginUserSchema>['body']
 export type ResetPasswordMailInput = TypeOf<
 	typeof ResetPasswordMailSchema
 >['body']
+export type ResetPasswordInput = TypeOf<typeof ResetPasswordSchema>['body']
