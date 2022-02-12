@@ -38,7 +38,7 @@ export async function createUserHandler(
 		const buttonURL = `http://localhost:3001/api/verifyUser?token=${token}`
 		const htmlData = signupEmailTemplate(buttonURL)
 		sendEmail('Medium account verification.', htmlData, user.email, user.name)
-		return res.status(200).send(user)
+		return res.status(200).send('Email send for verification.')
 	} catch (e: any) {
 		if (e.code === 11000) {
 			return res.status(409).send('Account already exists')

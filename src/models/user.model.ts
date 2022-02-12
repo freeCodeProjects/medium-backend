@@ -11,7 +11,7 @@ export interface User {
 	password: string
 	photo: string
 	verified: boolean
-	notification: number
+	newNotificationCount: number
 	tokens: string[]
 	verificationId?: string
 	bio?: string
@@ -33,7 +33,7 @@ const UserSchema = new Schema<User>(
 		verified: { type: Boolean, required: true, default: false },
 		verificationId: { type: String, default: () => nanoid() },
 		bio: { type: String, trim: true },
-		notification: { type: Number, default: 0 },
+		newNotificationCount: { type: Number, default: 0 },
 		followers: [{ type: Schema.Types.ObjectId, ref: 'User' }],
 		following: [{ type: Schema.Types.ObjectId, ref: 'User' }],
 		previouslyRead: [{ type: Schema.Types.ObjectId, ref: 'Blog' }],
@@ -45,6 +45,12 @@ const UserSchema = new Schema<User>(
 
 UserSchema.virtual('blogs', {
 	ref: 'Blog',
+	localField: '_id',
+	foreignField: 'userId'
+})
+
+UserSchema.virtual('notification', {
+	ref: 'Notification',
 	localField: '_id',
 	foreignField: 'userId'
 })
