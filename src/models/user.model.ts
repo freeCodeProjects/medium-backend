@@ -13,12 +13,12 @@ export interface User {
 	verified: boolean
 	newNotificationCount: number
 	tokens: string[]
-	verificationId?: string
-	bio?: string
-	followers?: Types.ObjectId[]
-	following?: Types.ObjectId[]
-	previouslyRead?: Types.ObjectId[]
-	bookmarks?: Types.ObjectId[]
+	verificationId: string
+	bio: string
+	followerCount: number
+	followingCount: number
+	previouslyRead: Types.ObjectId[]
+	bookmarks: Types.ObjectId[]
 	comparePassword(candidatePassword: string): Promise<Boolean>
 	save(): Promise<User>
 }
@@ -34,8 +34,8 @@ const UserSchema = new Schema<User>(
 		verificationId: { type: String, default: () => nanoid() },
 		bio: { type: String, trim: true },
 		newNotificationCount: { type: Number, default: 0 },
-		followers: [{ type: Schema.Types.ObjectId, ref: 'User' }],
-		following: [{ type: Schema.Types.ObjectId, ref: 'User' }],
+		followerCount: { type: Number, default: 0 },
+		followingCount: { type: Number, default: 0 },
 		previouslyRead: [{ type: Schema.Types.ObjectId, ref: 'Blog' }],
 		bookmarks: [{ type: Schema.Types.ObjectId, ref: 'Blog' }],
 		tokens: [{ token: { type: String, required: true } }]
