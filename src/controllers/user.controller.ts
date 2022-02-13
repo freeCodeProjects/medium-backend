@@ -53,14 +53,7 @@ async function getUserDataWithToken(user: User) {
 	//add auth token to user document
 	await findAndUpdateUser({ _id: user._id }, { $push: { tokens: { token } } })
 	const result = {
-		user: {
-			id: user._id,
-			email: user.email,
-			name: user.name,
-			userName: user.userName,
-			photo: user.photo,
-			bio: user.bio
-		},
+		user,
 		token
 	}
 	return result
@@ -158,7 +151,7 @@ export async function resetPasswordMailHandler(
 			return res.status(200).send('Mail send successful.')
 		}
 	} catch (e: any) {
-		logger.error(`logoutUserHandler ${JSON.stringify(e)}`)
+		logger.error(`resetPasswordMailHandler ${JSON.stringify(e)}`)
 		return res.status(500).send(e)
 	}
 }
