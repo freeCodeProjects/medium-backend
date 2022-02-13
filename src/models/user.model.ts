@@ -68,13 +68,29 @@ UserSchema.methods.comparePassword = async function (
 UserSchema.methods.toJSON = function () {
 	const user = this
 	const userObject = user.toObject()
+	return transformDoc(userObject)
+}
 
-	delete userObject.password
-	delete userObject.verificationId
-	delete userObject.verified
-	delete userObject.__v
-	delete userObject.tokens
-	return userObject
+//delete secret or not required key when lean is enabled
+UserSchema.post(['findOne', 'findOneAndUpdate'], function (res) {
+	if (!res || !this.mongooseOptions().lean) {
+		return
+	}
+	if (Array.isArray(res)) {
+		res.forEach(transformDoc)
+		return
+	}
+	transformDoc(res)
+})
+
+function transformDoc(doc: Partial<User>) {
+	delete doc.password
+	delete doc.verificationId
+	delete doc.verified
+	delete doc.tokens
+	//@ts-ignore
+	delete doc.__v
+	return doc
 }
 
 UserSchema.pre('save', async function (next) {

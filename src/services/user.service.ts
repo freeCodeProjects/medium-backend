@@ -16,9 +16,10 @@ export async function createUser(input: Partial<User>): Promise<User> {
 
 export async function findUser(
 	query: FilterQuery<User>,
-	options: QueryOptions = { lean: true }
+	options: QueryOptions = {}
 ): Promise<User | null> {
-	return UserModel.findOne(query, options)
+	const defaultOptions = { lean: true }
+	return UserModel.findOne(query, { ...defaultOptions, ...options })
 }
 
 export async function findAndUpdateUser(
@@ -26,5 +27,9 @@ export async function findAndUpdateUser(
 	update: UpdateQuery<User>,
 	options: QueryOptions = {}
 ): Promise<User | null> {
-	return UserModel.findOneAndUpdate(condition, update, options)
+	const defaultOptions = { lean: true, new: true }
+	return UserModel.findOneAndUpdate(condition, update, {
+		...defaultOptions,
+		...options
+	})
 }
