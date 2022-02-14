@@ -89,7 +89,7 @@ export async function loginUserHandler(
 ) {
 	const body = req.body
 	try {
-		const user = await findUser({ email: body.email }, { lean: false })
+		const user = await findUser({ email: body.email })
 		if (!user) {
 			return res.status(404).send('User not Found')
 		} else {
@@ -165,13 +165,15 @@ export async function resetPasswordHandler(
 		//tokenData {_id: 'df...aq', verificationId: 'dfs...ytu'}
 		const tokenData = JSON.parse(decodeBase64(token))
 		//mark user as verified
-		const user = await findUser({ ...tokenData }, { lean: false })
+		const user = await findUser({ ...tokenData })
 		if (!user) {
 			res.status(404).send('User not Found')
 		} else {
 			//save is used so that pre hook on save will run
 			user.verificationId = ''
 			user.password = password
+			//remove all the previous auth tokens
+			user.tokens = []
 			await user.save()
 
 			res.status(200).send('Password reset successful.')

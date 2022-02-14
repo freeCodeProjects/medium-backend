@@ -88,8 +88,6 @@ function transformDoc(doc: Partial<User>) {
 	delete doc.verificationId
 	delete doc.verified
 	delete doc.tokens
-	//@ts-ignore
-	delete doc.__v
 	return doc
 }
 

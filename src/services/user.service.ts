@@ -16,10 +16,10 @@ export async function createUser(input: Partial<User>): Promise<User> {
 
 export async function findUser(
 	query: FilterQuery<User>,
+	projection?: any,
 	options: QueryOptions = {}
 ): Promise<User | null> {
-	const defaultOptions = { lean: true }
-	return UserModel.findOne(query, { ...defaultOptions, ...options })
+	return UserModel.findOne(query, projection, options)
 }
 
 export async function findAndUpdateUser(
