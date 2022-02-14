@@ -4,8 +4,9 @@ import {
 	AddOrUpdateBlogInput,
 	AddOrUpdateBlogParams
 } from '../schemas/blog.schema'
-import { findAndUpdateBlog } from '../services/blog.service'
+import { findAllBlog, findAndUpdateBlog } from '../services/blog.service'
 import { Types } from 'mongoose'
+import { GetLatestBlogInput } from '../schemas/blog.schema'
 
 export async function AddOrUpdateBlogHandler(
 	req: Request<AddOrUpdateBlogParams, {}, AddOrUpdateBlogInput>,
@@ -22,6 +23,29 @@ export async function AddOrUpdateBlogHandler(
 		return res.status(200).send(blog)
 	} catch (e: any) {
 		logger.error(`AddOrUpdateBlogHandler ${JSON.stringify(e)}`)
+		return res.status(500).send(e)
+	}
+}
+
+export async function GetLatestBlogHandler(
+	req: Request<{}, {}, GetLatestBlogInput>,
+	res: Response
+) {
+	try {
+		//generate a new id in case it is not supplied
+		const blogs = await findAllBlog(
+			req.body.beforeId
+				? { _id: { $lt: new Types.ObjectId(req.body.beforeId) } }
+				: {},
+			'title',
+			{
+				sort: { createdAt: -1 },
+				limit: parseInt(process.env.NUMBER_OF_DOCUMENT_PER_REQUEST as string)
+			}
+		)
+		return res.status(200).send(blogs)
+	} catch (e: any) {
+		logger.error(`GetLatestBlogHandler ${JSON.stringify(e)}`)
 		return res.status(500).send(e)
 	}
 }

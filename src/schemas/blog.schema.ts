@@ -14,7 +14,14 @@ export const AddOrUpdateBlogSchema = object({
 	})
 })
 
+export const GetLatestBlogSchema = object({
+	body: object({
+		beforeId: string()
+	})
+})
+
 export type AddOrUpdateBlogInput = TypeOf<typeof AddOrUpdateBlogSchema>['body']
 export type AddOrUpdateBlogParams = TypeOf<
 	typeof AddOrUpdateBlogSchema
 >['params']
+export type GetLatestBlogInput = TypeOf<typeof GetLatestBlogSchema>['body']
