@@ -14,5 +14,9 @@ export async function findAndUpdateBlog(
 	update: UpdateQuery<Blog>,
 	options: QueryOptions = {}
 ): Promise<Blog | null> {
-	return BlogModel.findOneAndUpdate(condition, update, options)
+	const defaultOptions = { new: true }
+	return BlogModel.findOneAndUpdate(condition, update, {
+		...defaultOptions,
+		...options
+	})
 }
