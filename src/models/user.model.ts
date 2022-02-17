@@ -72,7 +72,7 @@ UserSchema.methods.toJSON = function () {
 }
 
 //delete secret or not required key when lean is enabled
-UserSchema.post(['findOne', 'findOneAndUpdate'], function (res) {
+UserSchema.post(['findOne', 'findOneAndUpdate', 'find'], function (res) {
 	if (!res || !this.mongooseOptions().lean) {
 		return
 	}

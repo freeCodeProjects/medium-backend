@@ -25,7 +25,7 @@ const BlogSchema = new Schema<Blog>(
 		publishedContent: { type: Map, default: '' },
 		status: { type: String, default: 'draft' },
 		tags: [{ type: String, trim: true }],
-		userId: { type: Schema.Types.ObjectId, required: true },
+		userId: { type: Schema.Types.ObjectId, required: true, ref: 'User' },
 		previewImage: { type: String, trim: true, default: '' },
 		claps: { type: Number, default: 0 },
 		commentCount: { type: Number, default: 0 },
@@ -33,6 +33,13 @@ const BlogSchema = new Schema<Blog>(
 	},
 	{ timestamps: true }
 )
+
+BlogSchema.virtual('user', {
+	ref: 'User',
+	justOne: true,
+	localField: 'userId',
+	foreignField: '_id'
+})
 
 const BlogModel = model<Blog>('Blog', BlogSchema)
 

@@ -43,6 +43,7 @@ export async function PublishBlogHandler(
 					...req.body,
 					publishedTitle: req.body.title,
 					publishedContent: req.body.content,
+					userId: req.user?._id,
 					status: 'published',
 					publishedAt: {
 						$ifNull: ['$publishedAt', new Date().toISOString()]
@@ -62,15 +63,25 @@ export async function GetLatestBlogHandler(
 	res: Response
 ) {
 	try {
-		//generate a new id in case it is not supplied
 		const blogs = await findAllBlog(
 			req.body.beforeId
-				? { _id: { $lt: new Types.ObjectId(req.body.beforeId) } }
-				: {},
-			'title',
+				? {
+						_id: { $lt: new Types.ObjectId(req.body.beforeId) },
+						status: 'published'
+				  }
+				: { status: 'published' },
+			'publishedTitle subTitle previewImage tags publishedAt userId user',
 			{
 				sort: { publishedAt: -1 },
-				limit: parseInt(process.env.NUMBER_OF_DOCUMENT_PER_REQUEST as string)
+				limit: parseInt(process.env.NUMBER_OF_DOCUMENT_PER_REQUEST as string),
+				lean: true,
+				populate: {
+					path: 'user',
+					options: {
+						lean: true,
+						select: 'name bio photo followerCount'
+					}
+				}
 			}
 		)
 		return res.status(200).send(blogs)
@@ -82,11 +93,22 @@ export async function GetLatestBlogHandler(
 
 export async function GetTrendingBlogHandler(req: Request, res: Response) {
 	try {
-		//generate a new id in case it is not supplied
-		const blogs = await findAllBlog({ publishedAt: { $ne: null } }, '', {
-			sort: { publishedAt: -1, claps: -1 },
-			limit: 6
-		})
+		const blogs = await findAllBlog(
+			{ status: 'published' },
+			'publishedTitle subTitle previewImage tags publishedAt userId user',
+			{
+				sort: { publishedAt: -1, claps: -1 },
+				limit: 6,
+				lean: true,
+				populate: {
+					path: 'user',
+					options: {
+						lean: true,
+						select: 'name bio photo followerCount'
+					}
+				}
+			}
+		)
 		return res.status(200).send(blogs)
 	} catch (e: any) {
 		logger.error(`GetTrendingBlogHandler ${JSON.stringify(e)}`)
