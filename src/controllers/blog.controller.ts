@@ -11,6 +11,12 @@ import {
 	PublishBlogParams,
 	PublishBlogInput
 } from '../schemas/blog.schema'
+import { getReadingTime } from '../utils/helper'
+
+const AllBlogProjection =
+	'publishedTitle subTitle previewImage tags readTime publishedAt userId user'
+
+const AllBlogUserProjection = 'name bio photo followerCount'
 
 export async function AddOrUpdateBlogHandler(
 	req: Request<AddOrUpdateBlogParams, {}, AddOrUpdateBlogInput>,
@@ -37,12 +43,19 @@ export async function PublishBlogHandler(
 ) {
 	try {
 		const id = req.params.id
+		const readTime = getReadingTime(req.body.content)
+
+		//Work around for MongoServerError: Invalid $set :: caused by :: an empty object is not a valid value.
+		const content = req.body.content
+		req.body.content = { $literal: req.body.content }
+
 		const blog = await findAndUpdateBlog({ _id: id }, [
 			{
 				$set: {
 					...req.body,
+					readTime,
 					publishedTitle: req.body.title,
-					publishedContent: req.body.content,
+					publishedContent: { $literal: content },
 					userId: req.user?._id,
 					status: 'published',
 					publishedAt: {
@@ -70,7 +83,7 @@ export async function GetLatestBlogHandler(
 						status: 'published'
 				  }
 				: { status: 'published' },
-			'publishedTitle subTitle previewImage tags publishedAt userId user',
+			AllBlogProjection,
 			{
 				sort: { publishedAt: -1 },
 				limit: parseInt(process.env.NUMBER_OF_DOCUMENT_PER_REQUEST as string),
@@ -79,7 +92,7 @@ export async function GetLatestBlogHandler(
 					path: 'user',
 					options: {
 						lean: true,
-						select: 'name bio photo followerCount'
+						select: AllBlogUserProjection
 					}
 				}
 			}
@@ -95,7 +108,7 @@ export async function GetTrendingBlogHandler(req: Request, res: Response) {
 	try {
 		const blogs = await findAllBlog(
 			{ status: 'published' },
-			'publishedTitle subTitle previewImage tags publishedAt userId user',
+			AllBlogProjection,
 			{
 				sort: { publishedAt: -1, claps: -1 },
 				limit: 6,
@@ -104,7 +117,7 @@ export async function GetTrendingBlogHandler(req: Request, res: Response) {
 					path: 'user',
 					options: {
 						lean: true,
-						select: 'name bio photo followerCount'
+						select: AllBlogUserProjection
 					}
 				}
 			}

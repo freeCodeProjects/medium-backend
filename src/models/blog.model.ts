@@ -14,6 +14,7 @@ export interface Blog {
 	claps: number
 	commentCount: number
 	publishedAt: Date
+	readTime: number
 }
 
 const BlogSchema = new Schema<Blog>(
@@ -29,7 +30,8 @@ const BlogSchema = new Schema<Blog>(
 		previewImage: { type: String, trim: true, default: '' },
 		claps: { type: Number, default: 0 },
 		commentCount: { type: Number, default: 0 },
-		publishedAt: { type: Date }
+		publishedAt: { type: Date },
+		readTime: { type: Number, default: 0 }
 	},
 	{ timestamps: true }
 )

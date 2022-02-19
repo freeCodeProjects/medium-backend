@@ -13,8 +13,8 @@ export const AddOrUpdateBlogSchema = object({
 export const PublishBlogSchema = object({
 	body: object({
 		title: string(),
+		content: object({}),
 		subTitle: string().optional(),
-		content: object({}).optional(),
 		tags: string().array().optional(),
 		previewImage: string().optional()
 	}).strict(),
