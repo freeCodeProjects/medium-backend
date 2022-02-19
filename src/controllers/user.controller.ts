@@ -51,9 +51,13 @@ export async function createUserHandler(
 async function getUserDataWithToken(user: User) {
 	const token = await generateAuthToken({ id: user._id.toString() })
 	//add auth token to user document
-	await findAndUpdateUser({ _id: user._id }, { $push: { tokens: { token } } })
+	const newUser = await findAndUpdateUser(
+		{ _id: user._id },
+		{ $push: { tokens: { token } } },
+		{ projection: '-__v -createdAt -updatedAt' }
+	)
 	const result = {
-		user,
+		newUser,
 		token
 	}
 	return result
@@ -89,7 +93,7 @@ export async function loginUserHandler(
 ) {
 	const body = req.body
 	try {
-		const user = await findUser({ email: body.email })
+		const user = await findUser({ email: body.email, verified: true })
 		if (!user) {
 			return res.status(404).send('User not Found')
 		} else {

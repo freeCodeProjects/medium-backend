@@ -14,16 +14,18 @@ export const CreateUserSchema = object({
 		confirmPassword: string({ required_error: 'Password is required' }).min(6, {
 			message: 'Must be 6 or more characters long'
 		})
-	}).refine(({ password, confirmPassword }) => password === confirmPassword, {
-		message: "Passwords don't match",
-		path: ['confirmPassword']
 	})
+		.strict()
+		.refine(({ password, confirmPassword }) => password === confirmPassword, {
+			message: "Passwords don't match",
+			path: ['confirmPassword']
+		})
 })
 
 export const VerifyUserSchema = object({
 	query: object({
 		token: string({ required_error: 'Token is required' })
-	})
+	}).strict()
 })
 
 export const LoginUserSchema = object({
@@ -34,7 +36,7 @@ export const LoginUserSchema = object({
 		password: string({ required_error: 'Password is required' }).min(6, {
 			message: 'Must be 6 or more characters long'
 		})
-	})
+	}).strict()
 })
 
 export const ResetPasswordMailSchema = object({
@@ -42,7 +44,7 @@ export const ResetPasswordMailSchema = object({
 		email: string({ required_error: 'Email is required' }).email({
 			message: 'Invalid email address'
 		})
-	})
+	}).strict()
 })
 
 export const ResetPasswordSchema = object({
@@ -54,10 +56,12 @@ export const ResetPasswordSchema = object({
 		confirmPassword: string({ required_error: 'Password is required' }).min(6, {
 			message: 'Must be 6 or more characters long'
 		})
-	}).refine(({ password, confirmPassword }) => password === confirmPassword, {
-		message: "Passwords don't match",
-		path: ['confirmPassword']
 	})
+		.strict()
+		.refine(({ password, confirmPassword }) => password === confirmPassword, {
+			message: "Passwords don't match",
+			path: ['confirmPassword']
+		})
 })
 
 export type CreateUserInput = TypeOf<typeof CreateUserSchema>['body']

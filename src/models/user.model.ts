@@ -12,7 +12,7 @@ export interface User {
 	photo: string
 	verified: boolean
 	newNotificationCount: number
-	tokens: string[]
+	tokens: { token: string }[]
 	verificationId: string
 	bio: string
 	followerCount: number
