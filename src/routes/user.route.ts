@@ -5,13 +5,17 @@ import {
 	logoutUserHandler,
 	resetPasswordHandler,
 	resetPasswordMailHandler,
+	updateBioHandler,
+	updateNameHandler,
 	verifyUserHandler
 } from '../controllers/user.controller'
 import { authMiddleware } from '../middlewares/authMiddleware'
 import { validateResource } from '../middlewares/validateResource'
+import { UpdateUserBioSchema } from '../schemas/user.schema'
 import {
 	ResetPasswordMailSchema,
-	ResetPasswordSchema
+	ResetPasswordSchema,
+	UpdateUserNameSchema
 } from '../schemas/user.schema'
 import {
 	CreateUserSchema,
@@ -47,6 +51,18 @@ router.post(
 	'/api/resetpassword',
 	validateResource(ResetPasswordSchema),
 	resetPasswordHandler
+)
+
+router.post(
+	'/api/updateName',
+	[authMiddleware, validateResource(UpdateUserNameSchema)],
+	updateNameHandler
+)
+
+router.post(
+	'/api/updateBio',
+	[authMiddleware, validateResource(UpdateUserBioSchema)],
+	updateBioHandler
 )
 
 export default router

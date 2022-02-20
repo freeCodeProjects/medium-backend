@@ -64,6 +64,18 @@ export const ResetPasswordSchema = object({
 		})
 })
 
+export const UpdateUserNameSchema = object({
+	body: object({
+		name: string()
+	}).strict()
+})
+
+export const UpdateUserBioSchema = object({
+	body: object({
+		bio: string().min(6).max(160)
+	}).strict()
+})
+
 export type CreateUserInput = TypeOf<typeof CreateUserSchema>['body']
 export type VerifyUserInput = TypeOf<typeof VerifyUserSchema>['query']
 export type LoginUserInput = TypeOf<typeof LoginUserSchema>['body']
@@ -71,3 +83,5 @@ export type ResetPasswordMailInput = TypeOf<
 	typeof ResetPasswordMailSchema
 >['body']
 export type ResetPasswordInput = TypeOf<typeof ResetPasswordSchema>['body']
+export type UpdateUserNameInput = TypeOf<typeof UpdateUserNameSchema>['body']
+export type UpdateUserBioInput = TypeOf<typeof UpdateUserBioSchema>['body']

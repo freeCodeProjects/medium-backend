@@ -20,7 +20,11 @@ import { logger } from '../utils/logger'
 import { User } from '../models/user.model'
 import { nanoid } from 'nanoid'
 import { decodeBase64, encodeBase64 } from '../utils/helper'
-import { ResetPasswordInput } from '../schemas/user.schema'
+import {
+	ResetPasswordInput,
+	UpdateUserNameInput,
+	UpdateUserBioInput
+} from '../schemas/user.schema'
 
 export async function createUserHandler(
 	req: Request<{}, {}, CreateUserInput>,
@@ -184,6 +188,36 @@ export async function resetPasswordHandler(
 		}
 	} catch (e: any) {
 		logger.error(`resetPasswordHandler ${JSON.stringify(e)}`)
+		return res.status(500).send(e)
+	}
+}
+
+export async function updateNameHandler(
+	req: Request<{}, {}, UpdateUserNameInput>,
+	res: Response
+) {
+	try {
+		const { name } = req.body
+		req.user!.name = name
+		await req.user!.save()
+		res.status(200).send('Name update successful.')
+	} catch (e: any) {
+		logger.error(`updateNameHandler ${JSON.stringify(e)}`)
+		return res.status(500).send(e)
+	}
+}
+
+export async function updateBioHandler(
+	req: Request<{}, {}, UpdateUserBioInput>,
+	res: Response
+) {
+	try {
+		const { bio } = req.body
+		req.user!.bio = bio
+		await req.user!.save()
+		res.status(200).send('Bio update successful.')
+	} catch (e: any) {
+		logger.error(`updateBioHandler ${JSON.stringify(e)}`)
 		return res.status(500).send(e)
 	}
 }
