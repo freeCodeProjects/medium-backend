@@ -55,7 +55,7 @@ export async function PublishBlogHandler(
 					...req.body,
 					readTime,
 					publishedTitle: req.body.title,
-					publishedContent: { $literal: content },
+					publishedContent: req.body.content,
 					userId: req.user?._id,
 					status: 'published',
 					publishedAt: {
