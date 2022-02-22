@@ -1,5 +1,6 @@
 import { NextFunction, Request, Response } from 'express'
 import { AnyZodObject } from 'zod'
+import { logger } from '../utils/logger'
 
 export const validateResource =
 	(schema: AnyZodObject) =>
@@ -12,6 +13,7 @@ export const validateResource =
 			})
 			next()
 		} catch (e: any) {
+			logger.error('validate Resource Failed.')
 			return res.status(400).send(e.errors)
 		}
 	}
