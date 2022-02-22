@@ -6,12 +6,16 @@ import {
 	resetPasswordHandler,
 	resetPasswordMailHandler,
 	updateBioHandler,
+	uploadProfileImageHandler,
 	updateNameHandler,
 	verifyUserHandler
 } from '../controllers/user.controller'
 import { authMiddleware } from '../middlewares/authMiddleware'
 import { validateResource } from '../middlewares/validateResource'
 import { UpdateUserBioSchema } from '../schemas/user.schema'
+import {
+	uploadImageMiddleWare
+} from '../middlewares/multerUpload'
 import {
 	ResetPasswordMailSchema,
 	ResetPasswordSchema,
@@ -63,6 +67,12 @@ router.post(
 	'/api/updateBio',
 	[authMiddleware, validateResource(UpdateUserBioSchema)],
 	updateBioHandler
+)
+
+router.post(
+	'/uploadProfileImage',
+	[authMiddleware, uploadImageMiddleWare(1048576, 'profile')], //1MB=1048576
+	uploadProfileImageHandler
 )
 
 export default router

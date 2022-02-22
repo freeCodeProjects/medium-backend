@@ -3,9 +3,11 @@ import express from 'express'
 import { logger } from './utils/logger'
 import router from './routes/index'
 import { connectToDb } from './utils/connectToDb'
+import cors from 'cors'
 
 const port = process.env.PORT || 3001
 const app = express()
+app.use(cors())
 app.use(express.json())
 app.use(router)
 

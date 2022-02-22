@@ -25,6 +25,7 @@ import {
 	UpdateUserNameInput,
 	UpdateUserBioInput
 } from '../schemas/user.schema'
+import { imageUploader } from '../utils/fileUploader'
 
 export async function createUserHandler(
 	req: Request<{}, {}, CreateUserInput>,
@@ -184,7 +185,7 @@ export async function resetPasswordHandler(
 			user.tokens = []
 			await user.save()
 
-			res.status(200).send('Password reset successful.')
+			return res.status(200).send('Password reset successful.')
 		}
 	} catch (e: any) {
 		logger.error(`resetPasswordHandler ${JSON.stringify(e)}`)
@@ -200,7 +201,7 @@ export async function updateNameHandler(
 		const { name } = req.body
 		req.user!.name = name
 		await req.user!.save()
-		res.status(200).send('Name update successful.')
+		return res.status(200).send('Name update successful.')
 	} catch (e: any) {
 		logger.error(`updateNameHandler ${JSON.stringify(e)}`)
 		return res.status(500).send(e)
@@ -215,9 +216,24 @@ export async function updateBioHandler(
 		const { bio } = req.body
 		req.user!.bio = bio
 		await req.user!.save()
-		res.status(200).send('Bio update successful.')
+		return res.status(200).send('Bio update successful.')
 	} catch (e: any) {
 		logger.error(`updateBioHandler ${JSON.stringify(e)}`)
+		return res.status(500).send(e)
+	}
+}
+
+export async function uploadProfileImageHandler(req: Request, res: Response) {
+	try {
+		const { originalname: name, buffer: file } = req.file!
+		const result = await imageUploader(file, name, 'avatar')
+
+		//update the user photo with result url
+		req.user!.photo = result.url
+		await req.user?.save()
+		return res.sendStatus(200)
+	} catch (e: any) {
+		logger.error(`uploadProfileImageHandler ${JSON.stringify(e)}`)
 		return res.status(500).send(e)
 	}
 }
