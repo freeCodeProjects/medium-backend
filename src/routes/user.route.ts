@@ -13,9 +13,7 @@ import {
 import { authMiddleware } from '../middlewares/authMiddleware'
 import { validateResource } from '../middlewares/validateResource'
 import { UpdateUserBioSchema } from '../schemas/user.schema'
-import {
-	uploadImageMiddleWare
-} from '../middlewares/multerUpload'
+import { uploadImageMiddleWare } from '../middlewares/multerUpload'
 import {
 	ResetPasswordMailSchema,
 	ResetPasswordSchema,
@@ -70,9 +68,11 @@ router.post(
 )
 
 router.post(
-	'/uploadProfileImage',
+	'/api/uploadProfileImage',
 	[authMiddleware, uploadImageMiddleWare(1048576, 'profile')], //1MB=1048576
 	uploadProfileImageHandler
 )
+
+router.get('/api/isUserNameUnique')
 
 export default router

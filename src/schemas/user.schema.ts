@@ -4,15 +4,21 @@ export const CreateUserSchema = object({
 	body: object({
 		name: string({
 			required_error: 'Name is required'
-		}),
+		})
+			.min(3, {
+				message: 'Name must be 3 or more characters long'
+			})
+			.max(50, {
+				message: 'Name must be less than 50 characters long'
+			}),
 		email: string({ required_error: 'Email is required' }).email({
 			message: 'Invalid email address'
 		}),
 		password: string({ required_error: 'Password is required' }).min(6, {
-			message: 'Must be 6 or more characters long'
+			message: 'Password must be 6 or more characters long'
 		}),
 		confirmPassword: string({ required_error: 'Password is required' }).min(6, {
-			message: 'Must be 6 or more characters long'
+			message: 'ConfirmPassword must be 6 or more characters long'
 		})
 	})
 		.strict()
@@ -33,9 +39,7 @@ export const LoginUserSchema = object({
 		email: string({ required_error: 'Email is required' }).email({
 			message: 'Invalid email address'
 		}),
-		password: string({ required_error: 'Password is required' }).min(6, {
-			message: 'Must be 6 or more characters long'
-		})
+		password: string({ required_error: 'Password is required' })
 	}).strict()
 })
 
@@ -51,10 +55,10 @@ export const ResetPasswordSchema = object({
 	body: object({
 		token: string(),
 		password: string({ required_error: 'Password is required' }).min(6, {
-			message: 'Must be 6 or more characters long'
+			message: 'Password must be 6 or more characters long'
 		}),
 		confirmPassword: string({ required_error: 'Password is required' }).min(6, {
-			message: 'Must be 6 or more characters long'
+			message: 'ConfirmPassword must be 6 or more characters long'
 		})
 	})
 		.strict()
