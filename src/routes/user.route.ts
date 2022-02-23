@@ -21,7 +21,7 @@ import { uploadImageMiddleWare } from '../middlewares/multerUpload'
 import {
 	ResetPasswordMailSchema,
 	ResetPasswordSchema,
-	UpdateUserNameSchema
+	UpdateNameSchema
 } from '../schemas/user.schema'
 import {
 	CreateUserSchema,
@@ -61,7 +61,7 @@ router.post(
 
 router.post(
 	'/api/updateName',
-	[authMiddleware, validateResource(UpdateUserNameSchema)],
+	[authMiddleware, validateResource(UpdateNameSchema)],
 	updateNameHandler
 )
 

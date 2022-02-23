@@ -68,7 +68,7 @@ export const ResetPasswordSchema = object({
 		})
 })
 
-export const UpdateUserNameSchema = object({
+export const UpdateNameSchema = object({
 	body: object({
 		name: string()
 	}).strict()
@@ -93,7 +93,7 @@ export type ResetPasswordMailInput = TypeOf<
 	typeof ResetPasswordMailSchema
 >['body']
 export type ResetPasswordInput = TypeOf<typeof ResetPasswordSchema>['body']
-export type UpdateUserNameInput = TypeOf<typeof UpdateUserNameSchema>['body']
+export type UpdateNameInput = TypeOf<typeof UpdateNameSchema>['body']
 export type UpdateUserBioInput = TypeOf<typeof UpdateUserBioSchema>['body']
 export type IsUserNameUniqueInput = TypeOf<
 	typeof IsUserNameUniqueSchema

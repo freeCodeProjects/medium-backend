@@ -22,7 +22,7 @@ import { nanoid } from 'nanoid'
 import { decodeBase64, encodeBase64 } from '../utils/helper'
 import {
 	ResetPasswordInput,
-	UpdateUserNameInput,
+	UpdateNameInput,
 	UpdateUserBioInput
 } from '../schemas/user.schema'
 import { imageUploader } from '../utils/fileUploader'
@@ -195,7 +195,7 @@ export async function resetPasswordHandler(
 }
 
 export async function updateNameHandler(
-	req: Request<{}, {}, UpdateUserNameInput>,
+	req: Request<{}, {}, UpdateNameInput>,
 	res: Response
 ) {
 	try {
