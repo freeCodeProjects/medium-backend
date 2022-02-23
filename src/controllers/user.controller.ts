@@ -26,7 +26,10 @@ import {
 	UpdateUserBioInput
 } from '../schemas/user.schema'
 import { imageUploader } from '../utils/fileUploader'
-import { IsUserNameUniqueInput } from '../schemas/user.schema'
+import {
+	IsUserNameUniqueInput,
+	UpdateUserNameInput
+} from '../schemas/user.schema'
 
 export async function createUserHandler(
 	req: Request<{}, {}, CreateUserInput>,
@@ -59,11 +62,10 @@ async function getUserDataWithToken(user: User) {
 	//add auth token to user document
 	const newUser = await findAndUpdateUser(
 		{ _id: user._id },
-		{ $push: { tokens: { token } } },
-		{ projection: '-__v -createdAt -updatedAt' }
+		{ $push: { tokens: { token } } }
 	)
 	const result = {
-		newUser,
+		user: newUser,
 		token
 	}
 	return result
@@ -202,7 +204,7 @@ export async function updateNameHandler(
 		const { name } = req.body
 		req.user!.name = name
 		await req.user!.save()
-		return res.status(200).send('Name update successful.')
+		return res.status(200).send(req.user)
 	} catch (e: any) {
 		logger.error(`updateNameHandler ${JSON.stringify(e)}`)
 		return res.status(500).send(e)
@@ -217,7 +219,7 @@ export async function updateBioHandler(
 		const { bio } = req.body
 		req.user!.bio = bio
 		await req.user!.save()
-		return res.status(200).send('Bio update successful.')
+		return res.status(200).send(req.user)
 	} catch (e: any) {
 		logger.error(`updateBioHandler ${JSON.stringify(e)}`)
 		return res.status(500).send(e)
@@ -251,6 +253,21 @@ export async function isUserNameUniqueHandler(
 		return res.status(200).send({ result })
 	} catch (e: any) {
 		logger.error(`IsUserNameUniqueHandler ${JSON.stringify(e)}`)
+		return res.status(500).send(e)
+	}
+}
+
+export async function updateUserNameHandler(
+	req: Request<{}, {}, UpdateUserNameInput>,
+	res: Response
+) {
+	try {
+		const { userName } = req.body
+		req.user!.userName = userName
+		await req.user!.save()
+		return res.status(200).send(req.user)
+	} catch (e: any) {
+		logger.error(`updateNameHandler ${JSON.stringify(e)}`)
 		return res.status(500).send(e)
 	}
 }

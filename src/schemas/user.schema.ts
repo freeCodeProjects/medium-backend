@@ -86,6 +86,12 @@ export const IsUserNameUniqueSchema = object({
 	}).strict()
 })
 
+export const UpdateUserNameSchema = object({
+	body: object({
+		userName: string().min(3).max(60)
+	}).strict()
+})
+
 export type CreateUserInput = TypeOf<typeof CreateUserSchema>['body']
 export type VerifyUserInput = TypeOf<typeof VerifyUserSchema>['query']
 export type LoginUserInput = TypeOf<typeof LoginUserSchema>['body']
@@ -98,3 +104,4 @@ export type UpdateUserBioInput = TypeOf<typeof UpdateUserBioSchema>['body']
 export type IsUserNameUniqueInput = TypeOf<
 	typeof IsUserNameUniqueSchema
 >['body']
+export type UpdateUserNameInput = TypeOf<typeof UpdateUserNameSchema>['body']

@@ -19,6 +19,9 @@ export interface User {
 	followingCount: number
 	previouslyRead: Types.ObjectId[]
 	bookmarks: Types.ObjectId[]
+	__v: number
+	createdAt: Date
+	updatedAt: Date
 	comparePassword(candidatePassword: string): Promise<Boolean>
 	save(): Promise<User>
 }
@@ -88,6 +91,9 @@ function transformDoc(doc: Partial<User>) {
 	delete doc.verificationId
 	delete doc.verified
 	delete doc.tokens
+	delete doc.__v
+	delete doc.createdAt
+	delete doc.updatedAt
 	return doc
 }
 

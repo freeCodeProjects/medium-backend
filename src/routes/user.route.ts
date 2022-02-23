@@ -9,25 +9,24 @@ import {
 	uploadProfileImageHandler,
 	updateNameHandler,
 	verifyUserHandler,
-	isUserNameUniqueHandler
+	isUserNameUniqueHandler,
+	updateUserNameHandler
 } from '../controllers/user.controller'
 import { authMiddleware } from '../middlewares/authMiddleware'
 import { validateResource } from '../middlewares/validateResource'
 import {
 	IsUserNameUniqueSchema,
-	UpdateUserBioSchema
-} from '../schemas/user.schema'
-import { uploadImageMiddleWare } from '../middlewares/multerUpload'
-import {
+	UpdateUserBioSchema,
+	UpdateUserNameSchema,
 	ResetPasswordMailSchema,
 	ResetPasswordSchema,
-	UpdateNameSchema
-} from '../schemas/user.schema'
-import {
+	UpdateNameSchema,
 	CreateUserSchema,
 	LoginUserSchema,
 	VerifyUserSchema
 } from '../schemas/user.schema'
+
+import { uploadImageMiddleWare } from '../middlewares/multerUpload'
 
 const router = express.Router()
 
@@ -81,6 +80,12 @@ router.get(
 	'/api/isUserNameUnique',
 	[authMiddleware, validateResource(IsUserNameUniqueSchema)],
 	isUserNameUniqueHandler
+)
+
+router.post(
+	'/api/updateUserName',
+	[authMiddleware, validateResource(UpdateUserNameSchema)],
+	updateUserNameHandler
 )
 
 export default router
