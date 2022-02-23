@@ -16,7 +16,8 @@ import { getReadingTime } from '../utils/helper'
 const AllBlogProjection =
 	'publishedTitle subTitle previewImage tags readTime publishedAt userId user'
 
-const AllBlogUserProjection = 'name bio photo followerCount'
+const AllBlogUserProjection =
+	'name userName bio photo followerCount followingCount'
 
 export async function AddOrUpdateBlogHandler(
 	req: Request<AddOrUpdateBlogParams, {}, AddOrUpdateBlogInput>,
