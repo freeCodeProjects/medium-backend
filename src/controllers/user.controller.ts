@@ -26,6 +26,7 @@ import {
 	UpdateUserBioInput
 } from '../schemas/user.schema'
 import { imageUploader } from '../utils/fileUploader'
+import { IsUserNameUniqueInput } from '../schemas/user.schema'
 
 export async function createUserHandler(
 	req: Request<{}, {}, CreateUserInput>,
@@ -234,6 +235,22 @@ export async function uploadProfileImageHandler(req: Request, res: Response) {
 		return res.sendStatus(200)
 	} catch (e: any) {
 		logger.error(`uploadProfileImageHandler ${JSON.stringify(e)}`)
+		return res.status(500).send(e)
+	}
+}
+
+export async function isUserNameUniqueHandler(
+	req: Request<{}, {}, IsUserNameUniqueInput>,
+	res: Response
+) {
+	try {
+		const result = await findUser({ userName: req.body.userName }, '_id', {
+			lean: true
+		})
+		console.log(result)
+		return res.status(200).send({ result })
+	} catch (e: any) {
+		logger.error(`IsUserNameUniqueHandler ${JSON.stringify(e)}`)
 		return res.status(500).send(e)
 	}
 }

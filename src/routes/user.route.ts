@@ -8,11 +8,15 @@ import {
 	updateBioHandler,
 	uploadProfileImageHandler,
 	updateNameHandler,
-	verifyUserHandler
+	verifyUserHandler,
+	isUserNameUniqueHandler
 } from '../controllers/user.controller'
 import { authMiddleware } from '../middlewares/authMiddleware'
 import { validateResource } from '../middlewares/validateResource'
-import { UpdateUserBioSchema } from '../schemas/user.schema'
+import {
+	IsUserNameUniqueSchema,
+	UpdateUserBioSchema
+} from '../schemas/user.schema'
 import { uploadImageMiddleWare } from '../middlewares/multerUpload'
 import {
 	ResetPasswordMailSchema,
@@ -73,6 +77,10 @@ router.post(
 	uploadProfileImageHandler
 )
 
-router.get('/api/isUserNameUnique')
+router.get(
+	'/api/isUserNameUnique',
+	[authMiddleware, validateResource(IsUserNameUniqueSchema)],
+	isUserNameUniqueHandler
+)
 
 export default router
