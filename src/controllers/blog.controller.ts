@@ -13,10 +13,10 @@ import {
 } from '../schemas/blog.schema'
 import { getReadingTime } from '../utils/helper'
 
-const AllBlogProjection =
+const BlogProjection =
 	'publishedTitle subTitle previewImage tags readTime publishedAt userId user'
 
-const AllBlogUserProjection =
+const BlogUserProjection =
 	'name userName bio photo followerCount followingCount'
 
 export async function AddOrUpdateBlogHandler(
@@ -47,7 +47,6 @@ export async function PublishBlogHandler(
 		const readTime = getReadingTime(req.body.content)
 
 		//Work around for MongoServerError: Invalid $set :: caused by :: an empty object is not a valid value.
-		const content = req.body.content
 		req.body.content = { $literal: req.body.content }
 
 		const blog = await findAndUpdateBlog({ _id: id }, [
@@ -84,7 +83,7 @@ export async function GetLatestBlogHandler(
 						status: 'published'
 				  }
 				: { status: 'published' },
-			AllBlogProjection,
+			BlogProjection,
 			{
 				sort: { publishedAt: -1 },
 				limit: parseInt(process.env.NUMBER_OF_DOCUMENT_PER_REQUEST as string),
@@ -93,7 +92,7 @@ export async function GetLatestBlogHandler(
 					path: 'user',
 					options: {
 						lean: true,
-						select: AllBlogUserProjection
+						select: BlogUserProjection
 					}
 				}
 			}
@@ -107,22 +106,18 @@ export async function GetLatestBlogHandler(
 
 export async function GetTrendingBlogHandler(req: Request, res: Response) {
 	try {
-		const blogs = await findAllBlog(
-			{ status: 'published' },
-			AllBlogProjection,
-			{
-				sort: { publishedAt: -1, claps: -1 },
-				limit: 6,
-				lean: true,
-				populate: {
-					path: 'user',
-					options: {
-						lean: true,
-						select: AllBlogUserProjection
-					}
+		const blogs = await findAllBlog({ status: 'published' }, BlogProjection, {
+			sort: { publishedAt: -1, claps: -1 },
+			limit: 6,
+			lean: true,
+			populate: {
+				path: 'user',
+				options: {
+					lean: true,
+					select: BlogUserProjection
 				}
 			}
-		)
+		})
 		return res.status(200).send(blogs)
 	} catch (e: any) {
 		logger.error(`GetTrendingBlogHandler ${JSON.stringify(e)}`)
