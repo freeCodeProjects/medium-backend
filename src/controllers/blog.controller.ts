@@ -14,7 +14,7 @@ import {
 import { getReadingTime } from '../utils/helper'
 
 const BlogProjection =
-	'publishedTitle subTitle previewImage tags readTime publishedAt userId user'
+	'publishedTitle subTitle previewImage tags readTime publishedAt userId user claps commentCount'
 
 const BlogUserProjection =
 	'name userName bio photo followerCount followingCount'

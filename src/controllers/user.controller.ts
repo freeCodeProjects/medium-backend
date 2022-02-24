@@ -31,6 +31,8 @@ import {
 	UpdateUserNameInput
 } from '../schemas/user.schema'
 
+const UserProjection = 'name userName bio photo followerCount followingCount'
+
 export async function createUserHandler(
 	req: Request<{}, {}, CreateUserInput>,
 	res: Response
@@ -62,7 +64,8 @@ async function getUserDataWithToken(user: User) {
 	//add auth token to user document
 	const newUser = await findAndUpdateUser(
 		{ _id: user._id },
-		{ $push: { tokens: { token } } }
+		{ $push: { tokens: { token } } },
+		{ projection: UserProjection }
 	)
 	const result = {
 		user: newUser,
@@ -81,7 +84,8 @@ export async function verifyUserHandler(
 		//mark user as verified
 		const user = await findAndUpdateUser(
 			{ ...tokenData, verified: false },
-			{ verificationId: '', verified: true }
+			{ verificationId: '', verified: true },
+			{ projection: UserProjection }
 		)
 		if (!user) {
 			res.status(404).send('User not Found')
@@ -120,7 +124,8 @@ export async function logoutUserHandler(req: Request, res: Response) {
 	try {
 		const user = await findAndUpdateUser(
 			{ _id: req.user?._id },
-			{ $pull: { tokens: { token: req.token } } }
+			{ $pull: { tokens: { token: req.token } } },
+			{ projection: UserProjection }
 		)
 		if (!user) {
 			return res.status(404).send('User not Found')
@@ -142,7 +147,8 @@ export async function resetPasswordMailHandler(
 		const newVerificationId = nanoid()
 		const user = await findAndUpdateUser(
 			{ email: body.email },
-			{ verificationId: newVerificationId }
+			{ verificationId: newVerificationId },
+			{ projection: UserProjection }
 		)
 		if (!user) {
 			return res.status(404).send('User not Found')
