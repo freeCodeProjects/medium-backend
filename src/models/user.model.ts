@@ -46,18 +46,6 @@ const UserSchema = new Schema<User>(
 	{ timestamps: true }
 )
 
-UserSchema.virtual('blogs', {
-	ref: 'Blog',
-	localField: '_id',
-	foreignField: 'userId'
-})
-
-UserSchema.virtual('notification', {
-	ref: 'Notification',
-	localField: '_id',
-	foreignField: 'userId'
-})
-
 UserSchema.methods.comparePassword = async function (
 	candidatePassword: string
 ): Promise<boolean> {
