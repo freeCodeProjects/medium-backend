@@ -1,5 +1,17 @@
 import { object, string, TypeOf } from 'zod'
 
+const BodyWithBlogId = object({
+	body: object({
+		blogId: string()
+	}).strict()
+})
+
+const BodyWithUsername = object({
+	body: object({
+		userName: string().min(3).max(60)
+	}).strict()
+})
+
 export const CreateUserSchema = object({
 	body: object({
 		name: string({
@@ -80,17 +92,13 @@ export const UpdateUserBioSchema = object({
 	}).strict()
 })
 
-export const IsUserNameUniqueSchema = object({
-	body: object({
-		userName: string().min(3).max(60)
-	}).strict()
-})
+export const IsUserNameUniqueSchema = BodyWithUsername
 
-export const UpdateUserNameSchema = object({
-	body: object({
-		userName: string().min(3).max(60)
-	}).strict()
-})
+export const UpdateUserNameSchema = BodyWithUsername
+
+export const BookmarkBlogSchema = BodyWithBlogId
+
+export const PreviouslyReadSchema = BodyWithBlogId
 
 export type CreateUserInput = TypeOf<typeof CreateUserSchema>['body']
 export type VerifyUserInput = TypeOf<typeof VerifyUserSchema>['query']
@@ -105,3 +113,5 @@ export type IsUserNameUniqueInput = TypeOf<
 	typeof IsUserNameUniqueSchema
 >['body']
 export type UpdateUserNameInput = TypeOf<typeof UpdateUserNameSchema>['body']
+export type BookmarkBlogInput = TypeOf<typeof BookmarkBlogSchema>['body']
+export type PreviouslyReadInput = TypeOf<typeof PreviouslyReadSchema>['body']

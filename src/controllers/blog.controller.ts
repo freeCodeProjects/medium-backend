@@ -2,15 +2,13 @@ import { Request, Response } from 'express'
 import { logger } from '../utils/logger'
 import {
 	AddOrUpdateBlogInput,
-	AddOrUpdateBlogParams
-} from '../schemas/blog.schema'
-import { findAllBlog, findAndUpdateBlog } from '../services/blog.service'
-import { Types } from 'mongoose'
-import {
+	AddOrUpdateBlogParams,
 	GetLatestBlogInput,
 	PublishBlogParams,
 	PublishBlogInput
 } from '../schemas/blog.schema'
+import { findAllBlog, findAndUpdateBlog } from '../services/blog.service'
+import { Types } from 'mongoose'
 import { getReadingTime } from '../utils/helper'
 
 const BlogProjection =

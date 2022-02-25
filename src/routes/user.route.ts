@@ -10,7 +10,10 @@ import {
 	updateNameHandler,
 	verifyUserHandler,
 	isUserNameUniqueHandler,
-	updateUserNameHandler
+	updateUserNameHandler,
+	addToBookmarkHandler,
+	removeFromBookmarkHandler,
+	previouslyReadHandler
 } from '../controllers/user.controller'
 import { authMiddleware } from '../middlewares/authMiddleware'
 import { validateResource } from '../middlewares/validateResource'
@@ -23,9 +26,10 @@ import {
 	UpdateNameSchema,
 	CreateUserSchema,
 	LoginUserSchema,
-	VerifyUserSchema
+	VerifyUserSchema,
+	BookmarkBlogSchema,
+	PreviouslyReadSchema
 } from '../schemas/user.schema'
-
 import { uploadImageMiddleWare } from '../middlewares/multerUpload'
 
 const router = express.Router()
@@ -86,6 +90,24 @@ router.post(
 	'/api/updateUserName',
 	[authMiddleware, validateResource(UpdateUserNameSchema)],
 	updateUserNameHandler
+)
+
+router.post(
+	'/api/bookmarkBlog',
+	[authMiddleware, validateResource(BookmarkBlogSchema)],
+	addToBookmarkHandler
+)
+
+router.delete(
+	'/api/bookmarkBlog',
+	[authMiddleware, validateResource(BookmarkBlogSchema)],
+	removeFromBookmarkHandler
+)
+
+router.post(
+	'/api/previouslyReadBlog',
+	[authMiddleware, validateResource(PreviouslyReadSchema)],
+	previouslyReadHandler
 )
 
 export default router

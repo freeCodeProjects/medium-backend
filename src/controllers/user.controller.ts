@@ -20,18 +20,19 @@ import { logger } from '../utils/logger'
 import { User } from '../models/user.model'
 import { nanoid } from 'nanoid'
 import { decodeBase64, encodeBase64 } from '../utils/helper'
+import { imageUploader } from '../utils/fileUploader'
+import { PreviouslyReadInput } from '../schemas/user.schema'
 import {
 	ResetPasswordInput,
 	UpdateNameInput,
-	UpdateUserBioInput
-} from '../schemas/user.schema'
-import { imageUploader } from '../utils/fileUploader'
-import {
+	UpdateUserBioInput,
+	BookmarkBlogInput,
 	IsUserNameUniqueInput,
 	UpdateUserNameInput
 } from '../schemas/user.schema'
 
-const UserProjection = 'name userName bio photo followerCount followingCount'
+const UserProjection =
+	'name userName bio photo followerCount followingCount bookmarks'
 
 export async function createUserHandler(
 	req: Request<{}, {}, CreateUserInput>,
@@ -274,6 +275,60 @@ export async function updateUserNameHandler(
 		return res.status(200).send(req.user)
 	} catch (e: any) {
 		logger.error(`updateNameHandler ${JSON.stringify(e)}`)
+		return res.status(500).send(e)
+	}
+}
+
+export async function addToBookmarkHandler(
+	req: Request<{}, {}, BookmarkBlogInput>,
+	res: Response
+) {
+	try {
+		const { blogId } = req.body
+		const user = await findAndUpdateUser(
+			{ _id: req.user?._id },
+			{ $addToSet: { bookmarks: blogId } },
+			{ projection: UserProjection }
+		)
+		return res.status(200).send(user)
+	} catch (e: any) {
+		logger.error(`addToBookmarkHandler ${JSON.stringify(e)}`)
+		return res.status(500).send(e)
+	}
+}
+
+export async function removeFromBookmarkHandler(
+	req: Request<{}, {}, BookmarkBlogInput>,
+	res: Response
+) {
+	try {
+		const { blogId } = req.body
+		const user = await findAndUpdateUser(
+			{ _id: req.user?._id },
+			{ $pull: { bookmarks: blogId } },
+			{ projection: UserProjection }
+		)
+		return res.status(200).send(user)
+	} catch (e: any) {
+		logger.error(`removeFromBookmarkHandler ${JSON.stringify(e)}`)
+		return res.status(500).send(e)
+	}
+}
+
+export async function previouslyReadHandler(
+	req: Request<{}, {}, PreviouslyReadInput>,
+	res: Response
+) {
+	try {
+		const { blogId } = req.body
+		const user = await findAndUpdateUser(
+			{ _id: req.user?._id },
+			{ $addToSet: { previouslyRead: blogId } },
+			{ projection: UserProjection }
+		)
+		return res.status(200).send(user)
+	} catch (e: any) {
+		logger.error(`previouslyReadHandler ${JSON.stringify(e)}`)
 		return res.status(500).send(e)
 	}
 }
