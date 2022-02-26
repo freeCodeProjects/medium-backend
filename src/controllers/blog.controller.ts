@@ -5,7 +5,8 @@ import {
 	AddOrUpdateBlogParams,
 	GetLatestBlogInput,
 	PublishBlogParams,
-	PublishBlogInput
+	PublishBlogInput,
+	GetBookMarkOrPreviouslyReadInput
 } from '../schemas/blog.schema'
 import { findAllBlog, findAndUpdateBlog } from '../services/blog.service'
 import { Types } from 'mongoose'
@@ -114,6 +115,53 @@ export async function GetTrendingBlogHandler(req: Request, res: Response) {
 		return res.status(200).send(blogs)
 	} catch (e: any) {
 		logger.error(`GetTrendingBlogHandler ${JSON.stringify(e)}`)
+		return res.status(500).send(e)
+	}
+}
+
+export async function getBookMarkOrPreviouslyReadHandler(
+	req: Request<{}, {}, GetBookMarkOrPreviouslyReadInput>,
+	res: Response
+) {
+	try {
+		const { beforeId } = req.body
+		const allDocs = req.user![req.body.type]
+		let currDocs: Types.ObjectId[] = []
+
+		const docCount = parseInt(
+			process.env.NUMBER_OF_DOCUMENT_PER_REQUEST as string
+		)
+
+		//get last 2 bookmarks in reverse order
+		if (!beforeId) {
+			currDocs = allDocs.slice(-docCount).reverse()
+		} else {
+			const idx = allDocs.indexOf(new Types.ObjectId(beforeId))
+			currDocs = allDocs.slice(Math.max(0, idx - docCount), idx).reverse()
+		}
+
+		const docs = await findAllBlog({ _id: { $in: currDocs } }, BlogProjection, {
+			lean: true,
+			populate: {
+				path: 'user',
+				options: {
+					lean: true,
+					select: UserProjection
+				}
+			}
+		})
+
+		//Sort docs by the order of their _id values in currDocs.
+		docs?.sort(function (a, b) {
+			return (
+				currDocs.findIndex((id) => a._id.equals(id)) -
+				currDocs.findIndex((id) => b._id.equals(id))
+			)
+		})
+
+		return res.status(200).send(docs)
+	} catch (e: any) {
+		logger.error(`get${req.body.type}Handler ${JSON.stringify(e)}`)
 		return res.status(500).send(e)
 	}
 }

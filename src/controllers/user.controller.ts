@@ -26,13 +26,9 @@ import {
 	BookmarkBlogInput,
 	IsUserNameUniqueInput,
 	UpdateUserNameInput,
-	PreviouslyReadInput,
-	GetBookmarkBlogInput
+	PreviouslyReadInput
 } from '../schemas/user.schema'
-import { Types } from 'mongoose'
-import { findAllBlog } from '../services/blog.service'
-import { UserProjection, BlogProjection } from '../utils/projection'
-import { GetPreviouslyReadInput } from '../schemas/user.schema'
+import { UserProjection } from '../utils/projection'
 
 export async function createUserHandler(
 	req: Request<{}, {}, CreateUserInput>,
@@ -326,114 +322,6 @@ export async function previouslyReadHandler(
 		return res.status(200).send(user)
 	} catch (e: any) {
 		logger.error(`previouslyReadHandler ${JSON.stringify(e)}`)
-		return res.status(500).send(e)
-	}
-}
-
-export async function getBookmarkHandler(
-	req: Request<{}, {}, GetBookmarkBlogInput>,
-	res: Response
-) {
-	try {
-		const { beforeId } = req.body
-		const bookmarks = req.user?.bookmarks!
-		let currBookmarks: Types.ObjectId[] = []
-
-		const docCount = parseInt(
-			process.env.NUMBER_OF_DOCUMENT_PER_REQUEST as string
-		)
-
-		//get last 2 bookmarks in reverse order
-		if (!beforeId) {
-			currBookmarks = bookmarks.slice(-docCount).reverse()
-		} else {
-			const idx = bookmarks.indexOf(new Types.ObjectId(beforeId))
-			currBookmarks = bookmarks
-				.slice(Math.max(0, idx - docCount), idx)
-				.reverse()
-		}
-
-		const docs = await findAllBlog(
-			{
-				_id: currBookmarks
-			},
-			BlogProjection,
-			{
-				lean: true,
-				populate: {
-					path: 'user',
-					options: {
-						lean: true,
-						select: UserProjection
-					}
-				}
-			}
-		)
-
-		//Sort docs by the order of their _id values in currBookmarks.
-		docs?.sort(function (a, b) {
-			return (
-				currBookmarks.findIndex((id) => a._id.equals(id)) -
-				currBookmarks.findIndex((id) => b._id.equals(id))
-			)
-		})
-
-		return res.status(200).send(docs)
-	} catch (e: any) {
-		logger.error(`getBookmarkHandler ${JSON.stringify(e)}`)
-		return res.status(500).send(e)
-	}
-}
-
-export async function getPreviouslyReadHandler(
-	req: Request<{}, {}, GetPreviouslyReadInput>,
-	res: Response
-) {
-	try {
-		const { beforeId } = req.body
-		const bookmarks = req.user?.previouslyRead!
-		let currPreviouslyRead: Types.ObjectId[] = []
-
-		const docCount = parseInt(
-			process.env.NUMBER_OF_DOCUMENT_PER_REQUEST as string
-		)
-
-		//get last 2 bookmarks in reverse order
-		if (!beforeId) {
-			currPreviouslyRead = bookmarks.slice(-docCount).reverse()
-		} else {
-			const idx = bookmarks.indexOf(new Types.ObjectId(beforeId))
-			currPreviouslyRead = bookmarks
-				.slice(Math.max(0, idx - docCount), idx)
-				.reverse()
-		}
-
-		const docs = await findAllBlog(
-			{ _id: { $in: currPreviouslyRead } },
-			BlogProjection,
-			{
-				lean: true,
-				populate: {
-					path: 'user',
-					options: {
-						lean: true,
-						select: UserProjection
-					}
-				}
-			}
-		)
-
-		//Sort docs by the order of their _id values in currPreviouslyRead.
-		docs?.sort(function (a, b) {
-			return (
-				currPreviouslyRead.findIndex((id) => a._id.equals(id)) -
-				currPreviouslyRead.findIndex((id) => b._id.equals(id))
-			)
-		})
-
-		return res.status(200).send(docs)
-	} catch (e: any) {
-		logger.error(`getPreviouslyReadHandler ${JSON.stringify(e)}`)
 		return res.status(500).send(e)
 	}
 }

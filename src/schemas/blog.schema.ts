@@ -1,4 +1,4 @@
-import { object, string, TypeOf } from 'zod'
+import { object, string, TypeOf, z } from 'zod'
 
 export const AddOrUpdateBlogSchema = object({
 	body: object({
@@ -29,6 +29,13 @@ export const GetLatestBlogSchema = object({
 	}).strict()
 })
 
+export const GetBookMarkOrPreviouslyReadSchema = object({
+	body: object({
+		beforeId: string(),
+		type: z.enum(['bookmarks', 'previouslyRead'])
+	}).strict()
+})
+
 export type AddOrUpdateBlogInput = TypeOf<typeof AddOrUpdateBlogSchema>['body']
 export type AddOrUpdateBlogParams = TypeOf<
 	typeof AddOrUpdateBlogSchema
@@ -36,3 +43,6 @@ export type AddOrUpdateBlogParams = TypeOf<
 export type PublishBlogInput = TypeOf<typeof PublishBlogSchema>['body']
 export type PublishBlogParams = TypeOf<typeof PublishBlogSchema>['params']
 export type GetLatestBlogInput = TypeOf<typeof GetLatestBlogSchema>['body']
+export type GetBookMarkOrPreviouslyReadInput = TypeOf<
+	typeof GetBookMarkOrPreviouslyReadSchema
+>['body']

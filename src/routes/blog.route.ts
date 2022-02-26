@@ -1,12 +1,14 @@
 import express from 'express'
 import {
 	AddOrUpdateBlogHandler,
+	getBookMarkOrPreviouslyReadHandler,
 	GetLatestBlogHandler,
 	GetTrendingBlogHandler,
 	PublishBlogHandler
 } from '../controllers/blog.controller'
 import { authMiddleware } from '../middlewares/authMiddleware'
 import { validateResource } from '../middlewares/validateResource'
+import { GetBookMarkOrPreviouslyReadSchema } from '../schemas/blog.schema'
 import {
 	AddOrUpdateBlogSchema,
 	GetLatestBlogSchema,
@@ -34,5 +36,11 @@ router.get(
 )
 
 router.get('/api/getTrending', authMiddleware, GetTrendingBlogHandler)
+
+router.get(
+	'/api/getBookMarkOrPreviouslyReadBlog',
+	[authMiddleware, validateResource(GetBookMarkOrPreviouslyReadSchema)],
+	getBookMarkOrPreviouslyReadHandler
+)
 
 export default router

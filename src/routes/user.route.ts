@@ -13,9 +13,7 @@ import {
 	updateUserNameHandler,
 	addToBookmarkHandler,
 	removeFromBookmarkHandler,
-	previouslyReadHandler,
-	getBookmarkHandler,
-	getPreviouslyReadHandler
+	previouslyReadHandler
 } from '../controllers/user.controller'
 import { authMiddleware } from '../middlewares/authMiddleware'
 import { validateResource } from '../middlewares/validateResource'
@@ -33,10 +31,6 @@ import {
 	PreviouslyReadSchema
 } from '../schemas/user.schema'
 import { uploadImageMiddleWare } from '../middlewares/multerUpload'
-import {
-	GetBookmarkBlogSchema,
-	GetPreviouslyReadSchema
-} from '../schemas/user.schema'
 
 const router = express.Router()
 
@@ -98,12 +92,6 @@ router.post(
 	updateUserNameHandler
 )
 
-router.get(
-	'/api/bookmarkBlog',
-	[authMiddleware, validateResource(GetBookmarkBlogSchema)],
-	getBookmarkHandler
-)
-
 router.post(
 	'/api/bookmarkBlog',
 	[authMiddleware, validateResource(BookmarkBlogSchema)],
@@ -114,12 +102,6 @@ router.delete(
 	'/api/bookmarkBlog',
 	[authMiddleware, validateResource(BookmarkBlogSchema)],
 	removeFromBookmarkHandler
-)
-
-router.get(
-	'/api/previouslyReadBlog',
-	[authMiddleware, validateResource(GetPreviouslyReadSchema)],
-	getPreviouslyReadHandler
 )
 
 router.post(
