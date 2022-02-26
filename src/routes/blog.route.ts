@@ -38,7 +38,13 @@ router.get(
 router.get('/api/getTrending', authMiddleware, GetTrendingBlogHandler)
 
 router.get(
-	'/api/getBookMarkOrPreviouslyReadBlog',
+	'/api/getBookmarkBlogs',
+	[authMiddleware, validateResource(GetBookMarkOrPreviouslyReadSchema)],
+	getBookMarkOrPreviouslyReadHandler
+)
+
+router.get(
+	'/api/getPreviouslyReadBlogs',
 	[authMiddleware, validateResource(GetBookMarkOrPreviouslyReadSchema)],
 	getBookMarkOrPreviouslyReadHandler
 )

@@ -73,7 +73,7 @@ export async function GetLatestBlogHandler(
 		const blogs = await findAllBlog(
 			req.body.beforeId
 				? {
-						_id: { $lt: new Types.ObjectId(req.body.beforeId) },
+						_id: { $lt: req.body.beforeId },
 						status: 'published'
 				  }
 				: { status: 'published' },
@@ -123,9 +123,14 @@ export async function getBookMarkOrPreviouslyReadHandler(
 	req: Request<{}, {}, GetBookMarkOrPreviouslyReadInput>,
 	res: Response
 ) {
+	let type: 'bookmarks' | 'previouslyRead' = 'bookmarks'
 	try {
+		if (req.path.includes('PreviouslyRead')) {
+			type = 'previouslyRead'
+		}
+
 		const { beforeId } = req.body
-		const allDocs = req.user![req.body.type]
+		const allDocs = req.user![type]
 		let currDocs: Types.ObjectId[] = []
 
 		const docCount = parseInt(
@@ -161,7 +166,7 @@ export async function getBookMarkOrPreviouslyReadHandler(
 
 		return res.status(200).send(docs)
 	} catch (e: any) {
-		logger.error(`get${req.body.type}Handler ${JSON.stringify(e)}`)
+		logger.error(`get${type}Handler ${JSON.stringify(e)}`)
 		return res.status(500).send(e)
 	}
 }

@@ -1,4 +1,4 @@
-import { object, string, TypeOf, z } from 'zod'
+import { object, string, TypeOf } from 'zod'
 
 export const AddOrUpdateBlogSchema = object({
 	body: object({
@@ -31,8 +31,7 @@ export const GetLatestBlogSchema = object({
 
 export const GetBookMarkOrPreviouslyReadSchema = object({
 	body: object({
-		beforeId: string(),
-		type: z.enum(['bookmarks', 'previouslyRead'])
+		beforeId: string()
 	}).strict()
 })
 
