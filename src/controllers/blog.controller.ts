@@ -10,12 +10,7 @@ import {
 import { findAllBlog, findAndUpdateBlog } from '../services/blog.service'
 import { Types } from 'mongoose'
 import { getReadingTime } from '../utils/helper'
-
-const BlogProjection =
-	'publishedTitle subTitle previewImage tags readTime publishedAt userId user claps commentCount'
-
-const BlogUserProjection =
-	'name userName bio photo followerCount followingCount'
+import { BlogProjection, UserProjection } from '../utils/projection'
 
 export async function AddOrUpdateBlogHandler(
 	req: Request<AddOrUpdateBlogParams, {}, AddOrUpdateBlogInput>,
@@ -90,7 +85,7 @@ export async function GetLatestBlogHandler(
 					path: 'user',
 					options: {
 						lean: true,
-						select: BlogUserProjection
+						select: UserProjection
 					}
 				}
 			}
@@ -112,7 +107,7 @@ export async function GetTrendingBlogHandler(req: Request, res: Response) {
 				path: 'user',
 				options: {
 					lean: true,
-					select: BlogUserProjection
+					select: UserProjection
 				}
 			}
 		})

@@ -12,6 +12,12 @@ const BodyWithUsername = object({
 	}).strict()
 })
 
+const BodyWithBeforeId = object({
+	body: object({
+		beforeId: string()
+	}).strict()
+})
+
 export const CreateUserSchema = object({
 	body: object({
 		name: string({
@@ -100,6 +106,10 @@ export const BookmarkBlogSchema = BodyWithBlogId
 
 export const PreviouslyReadSchema = BodyWithBlogId
 
+export const GetBookmarkBlogSchema = BodyWithBeforeId
+
+export const GetPreviouslyReadSchema = BodyWithBeforeId
+
 export type CreateUserInput = TypeOf<typeof CreateUserSchema>['body']
 export type VerifyUserInput = TypeOf<typeof VerifyUserSchema>['query']
 export type LoginUserInput = TypeOf<typeof LoginUserSchema>['body']
@@ -115,3 +125,7 @@ export type IsUserNameUniqueInput = TypeOf<
 export type UpdateUserNameInput = TypeOf<typeof UpdateUserNameSchema>['body']
 export type BookmarkBlogInput = TypeOf<typeof BookmarkBlogSchema>['body']
 export type PreviouslyReadInput = TypeOf<typeof PreviouslyReadSchema>['body']
+export type GetBookmarkBlogInput = TypeOf<typeof GetBookmarkBlogSchema>['body']
+export type GetPreviouslyReadInput = TypeOf<
+	typeof GetPreviouslyReadSchema
+>['body']
