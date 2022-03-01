@@ -25,13 +25,25 @@ export const PublishBlogSchema = object({
 
 export const GetLatestBlogSchema = object({
 	body: object({
-		beforeId: string().optional()
+		beforeTime: string()
 	}).strict()
 })
 
 export const GetBookMarkOrPreviouslyReadSchema = object({
 	body: object({
 		beforeId: string()
+	}).strict()
+})
+
+export const GetUserDraftBlogSchema = object({
+	body: object({
+		beforeTime: string()
+	}).strict()
+})
+
+export const GetUserPublishedBlogSchema = object({
+	body: object({
+		beforeTime: string()
 	}).strict()
 })
 
@@ -44,4 +56,10 @@ export type PublishBlogParams = TypeOf<typeof PublishBlogSchema>['params']
 export type GetLatestBlogInput = TypeOf<typeof GetLatestBlogSchema>['body']
 export type GetBookMarkOrPreviouslyReadInput = TypeOf<
 	typeof GetBookMarkOrPreviouslyReadSchema
+>['body']
+export type GetUserDraftBlogInput = TypeOf<
+	typeof GetUserDraftBlogSchema
+>['body']
+export type GetUserPublishedBlogInput = TypeOf<
+	typeof GetUserPublishedBlogSchema
 >['body']

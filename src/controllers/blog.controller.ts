@@ -6,7 +6,9 @@ import {
 	GetLatestBlogInput,
 	PublishBlogParams,
 	PublishBlogInput,
-	GetBookMarkOrPreviouslyReadInput
+	GetBookMarkOrPreviouslyReadInput,
+	GetUserPublishedBlogInput,
+	GetUserDraftBlogInput
 } from '../schemas/blog.schema'
 import { findAllBlog, findAndUpdateBlog } from '../services/blog.service'
 import { Types } from 'mongoose'
@@ -53,7 +55,7 @@ export async function PublishBlogHandler(
 					userId: req.user?._id,
 					status: 'published',
 					publishedAt: {
-						$ifNull: ['$publishedAt', new Date().toISOString()]
+						$ifNull: ['$publishedAt', new Date()]
 					}
 				}
 			}
@@ -71,10 +73,10 @@ export async function GetLatestBlogHandler(
 ) {
 	try {
 		const blogs = await findAllBlog(
-			req.body.beforeId
+			req.body.beforeTime
 				? {
-						_id: { $lt: req.body.beforeId },
-						status: 'published'
+						status: 'published',
+						publishedAt: { $lt: req.body.beforeTime }
 				  }
 				: { status: 'published' },
 			BlogProjection,
@@ -101,7 +103,7 @@ export async function GetLatestBlogHandler(
 export async function GetTrendingBlogHandler(req: Request, res: Response) {
 	try {
 		const blogs = await findAllBlog({ status: 'published' }, BlogProjection, {
-			sort: { publishedAt: -1, claps: -1 },
+			sort: { claps: -1, publishedAt: -1 },
 			limit: 6,
 			lean: true,
 			populate: {
@@ -167,6 +169,60 @@ export async function getBookMarkOrPreviouslyReadHandler(
 		return res.status(200).send(docs)
 	} catch (e: any) {
 		logger.error(`get${type}Handler ${JSON.stringify(e)}`)
+		return res.status(500).send(e)
+	}
+}
+
+export async function getUserDraftBlogHandler(
+	req: Request<{}, {}, GetUserDraftBlogInput>,
+	res: Response
+) {
+	try {
+		const blogs = await findAllBlog(
+			req.body.beforeTime
+				? {
+						userId: req.user?._id,
+						status: 'draft',
+						updatedAt: { $lt: req.body.beforeTime }
+				  }
+				: { userId: req.user?._id, status: 'draft' },
+			BlogProjection,
+			{
+				sort: { updatedAt: -1 },
+				limit: parseInt(process.env.NUMBER_OF_DOCUMENT_PER_REQUEST as string),
+				lean: true
+			}
+		)
+		return res.status(200).send(blogs)
+	} catch (e: any) {
+		logger.error(`getUserDraftBlogHandler ${JSON.stringify(e)}`)
+		return res.status(500).send(e)
+	}
+}
+
+export async function getUserPublishedBlogHandler(
+	req: Request<{}, {}, GetUserPublishedBlogInput>,
+	res: Response
+) {
+	try {
+		const blogs = await findAllBlog(
+			req.body.beforeTime
+				? {
+						userId: req.user?._id,
+						status: 'published',
+						publishedAt: { $lt: req.body.beforeTime }
+				  }
+				: { userId: req.user?._id, status: 'published' },
+			BlogProjection,
+			{
+				sort: { publishedAt: -1 },
+				limit: parseInt(process.env.NUMBER_OF_DOCUMENT_PER_REQUEST as string),
+				lean: true
+			}
+		)
+		return res.status(200).send(blogs)
+	} catch (e: any) {
+		logger.error(`getUserPublishedBlogHandler ${JSON.stringify(e)}`)
 		return res.status(500).send(e)
 	}
 }

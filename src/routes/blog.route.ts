@@ -4,12 +4,18 @@ import {
 	getBookMarkOrPreviouslyReadHandler,
 	GetLatestBlogHandler,
 	GetTrendingBlogHandler,
+	getUserDraftBlogHandler,
+	getUserPublishedBlogHandler,
 	PublishBlogHandler
 } from '../controllers/blog.controller'
 import { authMiddleware } from '../middlewares/authMiddleware'
 import { validateResource } from '../middlewares/validateResource'
-import { GetBookMarkOrPreviouslyReadSchema } from '../schemas/blog.schema'
 import {
+	GetUserDraftBlogSchema,
+	GetUserPublishedBlogSchema
+} from '../schemas/blog.schema'
+import {
+	GetBookMarkOrPreviouslyReadSchema,
 	AddOrUpdateBlogSchema,
 	GetLatestBlogSchema,
 	PublishBlogSchema
@@ -47,6 +53,18 @@ router.get(
 	'/api/getPreviouslyReadBlogs',
 	[authMiddleware, validateResource(GetBookMarkOrPreviouslyReadSchema)],
 	getBookMarkOrPreviouslyReadHandler
+)
+
+router.get(
+	'/api/userDraftBlogs',
+	[authMiddleware, validateResource(GetUserDraftBlogSchema)],
+	getUserDraftBlogHandler
+)
+
+router.get(
+	'/api/userPublishedBlogs',
+	[authMiddleware, validateResource(GetUserPublishedBlogSchema)],
+	getUserPublishedBlogHandler
 )
 
 export default router

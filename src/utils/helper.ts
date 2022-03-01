@@ -33,5 +33,5 @@ export function getReadingTime(content: any): number {
 			imageTime += perImageTime
 		}
 	}
-	return Math.ceil(wordCount / wps + imageTime / 60)
+	return Math.max(Math.ceil(wordCount / wps + imageTime / 60), 1)
 }
