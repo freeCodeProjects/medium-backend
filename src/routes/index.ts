@@ -2,6 +2,7 @@ import express from 'express'
 import user from './user.route'
 import blog from './blog.route'
 import clap from './clap.route'
+import follower from './follower.route'
 
 const router = express.Router()
 
@@ -12,4 +13,5 @@ router.get('/api/healthcheck', (_, res) => {
 router.use(user)
 router.use(blog)
 router.use(clap)
+router.use(follower)
 export default router
