@@ -35,7 +35,7 @@ const UserSchema = new Schema<User>(
 		photo: { type: String, required: true, trim: true },
 		verified: { type: Boolean, required: true, default: false },
 		verificationId: { type: String, default: () => nanoid() },
-		bio: { type: String, trim: true },
+		bio: { type: String, trim: true, default: '' },
 		newNotificationCount: { type: Number, default: 0 },
 		followerCount: { type: Number, default: 0 },
 		followingCount: { type: Number, default: 0 },

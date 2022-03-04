@@ -11,10 +11,10 @@ export async function addFollowerController(
 	res: Response
 ) {
 	try {
+		//id of person who is getting followed
+		const followingId = new Types.ObjectId(req.params.userId)
 		//id of person who is following
-		const followerId = new Types.ObjectId(req.params.userId)
-		//id of person getting followed
-		const followingId = new Types.ObjectId(req.user?._id)
+		const followerId = new Types.ObjectId(req.user?._id)
 
 		//add the follower to collection
 		await addFollower({
@@ -33,7 +33,7 @@ export async function addFollowerController(
 		const follower = await findAndUpdateUser(
 			{ _id: followerId },
 			{ $inc: { followingCount: 1 } },
-			{ projection: UserProjection }
+			{ projection: `${UserProjection} bookmarks` }
 		)
 
 		return res.status(200).send({ follower, following })
@@ -48,10 +48,10 @@ export async function removeFollowerController(
 	res: Response
 ) {
 	try {
+		//id of person who is getting followed
+		const followingId = new Types.ObjectId(req.params.userId)
 		//id of person who is following
-		const followerId = new Types.ObjectId(req.params.userId)
-		//id of person getting followed
-		const followingId = new Types.ObjectId(req.user?._id)
+		const followerId = new Types.ObjectId(req.user?._id)
 
 		//add the follower to collection
 		await addFollower({
@@ -70,12 +70,12 @@ export async function removeFollowerController(
 		const follower = await findAndUpdateUser(
 			{ _id: followerId },
 			{ $inc: { followingCount: -1 } },
-			{ projection: UserProjection }
+			{ projection: `${UserProjection} bookmarks` }
 		)
 
 		return res.status(200).send({ follower, following })
 	} catch (e: any) {
-		logger.error(`addFollowerController ${JSON.stringify(e)}`)
+		logger.error(`removeFollowerController ${JSON.stringify(e)}`)
 		return res.status(500).send(e)
 	}
 }
