@@ -23,12 +23,13 @@ import {
 	ResetPasswordInput,
 	UpdateNameInput,
 	UpdateUserBioInput,
-	BookmarkBlogInput,
+	BookmarkBlogParams,
 	IsUserNameUniqueInput,
 	UpdateUserNameInput,
-	PreviouslyReadInput
+	PreviouslyReadParams
 } from '../schemas/user.schema'
 import { UserProjection } from '../utils/projection'
+import { Types } from 'mongoose'
 
 export async function createUserHandler(
 	req: Request<{}, {}, CreateUserInput>,
@@ -273,11 +274,11 @@ export async function updateUserNameHandler(
 }
 
 export async function addToBookmarkHandler(
-	req: Request<{}, {}, BookmarkBlogInput>,
+	req: Request<BookmarkBlogParams>,
 	res: Response
 ) {
 	try {
-		const { blogId } = req.body
+		const { blogId } = req.params
 		const user = await findAndUpdateUser(
 			{ _id: req.user?._id },
 			{ $addToSet: { bookmarks: blogId } },
@@ -291,11 +292,11 @@ export async function addToBookmarkHandler(
 }
 
 export async function removeFromBookmarkHandler(
-	req: Request<{}, {}, BookmarkBlogInput>,
+	req: Request<BookmarkBlogParams>,
 	res: Response
 ) {
 	try {
-		const { blogId } = req.body
+		const { blogId } = req.params
 		const user = await findAndUpdateUser(
 			{ _id: req.user?._id },
 			{ $pull: { bookmarks: blogId } },
@@ -309,17 +310,23 @@ export async function removeFromBookmarkHandler(
 }
 
 export async function previouslyReadHandler(
-	req: Request<{}, {}, PreviouslyReadInput>,
+	req: Request<PreviouslyReadParams>,
 	res: Response
 ) {
 	try {
-		const { blogId } = req.body
-		const user = await findAndUpdateUser(
-			{ _id: req.user?._id },
-			{ $addToSet: { previouslyRead: blogId } },
-			{ projection: `${UserProjection} bookmarks` }
+		const user = req.user!
+		const { blogId } = req.params
+
+		//remove the id if already exists
+		user.previouslyRead = user.previouslyRead.filter(
+			(id) => id.toString() !== blogId
 		)
-		return res.status(200).send(user)
+
+		//add the blogId to end
+		user.previouslyRead.push(new Types.ObjectId(blogId))
+
+		await user.save()
+		return res.status(200).send('Added to previously read.')
 	} catch (e: any) {
 		logger.error(`previouslyReadHandler ${JSON.stringify(e)}`)
 		return res.status(500).send(e)

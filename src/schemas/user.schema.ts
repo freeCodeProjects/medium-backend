@@ -1,7 +1,7 @@
 import { object, string, TypeOf } from 'zod'
 
-const BodyWithBlogId = object({
-	body: object({
+const ParamWithBlogId = object({
+	params: object({
 		blogId: string()
 	}).strict()
 })
@@ -96,9 +96,9 @@ export const IsUserNameUniqueSchema = BodyWithUsername
 
 export const UpdateUserNameSchema = BodyWithUsername
 
-export const BookmarkBlogSchema = BodyWithBlogId
+export const BookmarkBlogSchema = ParamWithBlogId
 
-export const PreviouslyReadSchema = BodyWithBlogId
+export const PreviouslyReadSchema = ParamWithBlogId
 
 export type CreateUserInput = TypeOf<typeof CreateUserSchema>['body']
 export type VerifyUserInput = TypeOf<typeof VerifyUserSchema>['query']
@@ -113,5 +113,5 @@ export type IsUserNameUniqueInput = TypeOf<
 	typeof IsUserNameUniqueSchema
 >['body']
 export type UpdateUserNameInput = TypeOf<typeof UpdateUserNameSchema>['body']
-export type BookmarkBlogInput = TypeOf<typeof BookmarkBlogSchema>['body']
-export type PreviouslyReadInput = TypeOf<typeof PreviouslyReadSchema>['body']
+export type BookmarkBlogParams = TypeOf<typeof BookmarkBlogSchema>['params']
+export type PreviouslyReadParams = TypeOf<typeof PreviouslyReadSchema>['params']

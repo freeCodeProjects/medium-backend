@@ -93,19 +93,19 @@ router.post(
 )
 
 router.post(
-	'/api/bookmarkBlog',
+	'/api/bookmarkBlog/:blogId',
 	[authMiddleware, validateResource(BookmarkBlogSchema)],
 	addToBookmarkHandler
 )
 
 router.delete(
-	'/api/bookmarkBlog',
+	'/api/bookmarkBlog/:blogId',
 	[authMiddleware, validateResource(BookmarkBlogSchema)],
 	removeFromBookmarkHandler
 )
 
 router.post(
-	'/api/previouslyReadBlog',
+	'/api/previouslyReadBlog/:blogId',
 	[authMiddleware, validateResource(PreviouslyReadSchema)],
 	previouslyReadHandler
 )
