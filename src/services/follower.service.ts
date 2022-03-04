@@ -1,9 +1,22 @@
 import FollowerModel, { Follower } from '../models/follower.model'
+import { FilterQuery, QueryOptions } from 'mongoose'
 
-export function addFollower(input: Partial<Follower>): Promise<Follower> {
+export async function addFollower(input: Partial<Follower>): Promise<Follower> {
 	return FollowerModel.create({ ...input })
 }
 
-export function removeFollower(input: Partial<Follower>) {
+export async function removeFollower(input: Partial<Follower>) {
 	return FollowerModel.deleteOne({ ...input })
+}
+
+export async function findAllFollower(
+	query: FilterQuery<Follower>,
+	projection?: any,
+	options: QueryOptions = {}
+): Promise<Follower[] | null> {
+	const defaultOptions = { lean: true }
+	return FollowerModel.find(query, projection, {
+		...defaultOptions,
+		...options
+	})
 }

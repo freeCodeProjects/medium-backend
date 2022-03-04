@@ -1,10 +1,12 @@
 import { Router } from 'express'
 import {
 	addFollowerController,
+	getFollowingOrFollowerHandler,
 	removeFollowerController
 } from '../controllers/follower.controller'
 import { authMiddleware } from '../middlewares/authMiddleware'
 import { validateResource } from '../middlewares/validateResource'
+import { GetFollowingOrFollowerSchema } from '../schemas/follower.schema'
 import {
 	AddFollowerSchema,
 	RemoveFollowerSchema
@@ -23,6 +25,18 @@ router.delete(
 	'/api/follower/:userId',
 	[authMiddleware, validateResource(RemoveFollowerSchema)],
 	removeFollowerController
+)
+
+router.get(
+	'/api/followers/:userId',
+	[authMiddleware, validateResource(GetFollowingOrFollowerSchema)],
+	getFollowingOrFollowerHandler
+)
+
+router.get(
+	'/api/followings/:userId',
+	[authMiddleware, validateResource(GetFollowingOrFollowerSchema)],
+	getFollowingOrFollowerHandler
 )
 
 export default router

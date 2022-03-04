@@ -1,13 +1,24 @@
 import { Request, Response } from 'express'
-import { addFollower } from '../services/follower.service'
+import {
+	addFollower,
+	findAllFollower,
+	removeFollower
+} from '../services/follower.service'
 import { logger } from '../utils/logger'
-import { AddFollowerInput } from '../schemas/follower.schema'
+import {
+	AddFollowerParams,
+	RemoveFollowerParams
+} from '../schemas/follower.schema'
 import { Types } from 'mongoose'
 import { findAndUpdateUser } from '../services/user.service'
 import { UserProjection } from '../utils/projection'
+import {
+	GetFollowingOrFollowerParams,
+	GetFollowingOrFollowerInput
+} from '../schemas/follower.schema'
 
 export async function addFollowerController(
-	req: Request<AddFollowerInput>,
+	req: Request<AddFollowerParams>,
 	res: Response
 ) {
 	try {
@@ -44,7 +55,7 @@ export async function addFollowerController(
 }
 
 export async function removeFollowerController(
-	req: Request<AddFollowerInput>,
+	req: Request<RemoveFollowerParams>,
 	res: Response
 ) {
 	try {
@@ -54,7 +65,7 @@ export async function removeFollowerController(
 		const followerId = new Types.ObjectId(req.user?._id)
 
 		//add the follower to collection
-		await addFollower({
+		await removeFollower({
 			followerId,
 			followingId
 		})
@@ -76,6 +87,44 @@ export async function removeFollowerController(
 		return res.status(200).send({ follower, following })
 	} catch (e: any) {
 		logger.error(`removeFollowerController ${JSON.stringify(e)}`)
+		return res.status(500).send(e)
+	}
+}
+
+export async function getFollowingOrFollowerHandler(
+	req: Request<GetFollowingOrFollowerParams, {}, GetFollowingOrFollowerInput>,
+	res: Response
+) {
+	try {
+		const { userId } = req.params
+		const query = req.path.includes('followers')
+			? { followingId: userId }
+			: { followerId: userId }
+
+		const path = req.path.includes('followers') ? 'follower' : 'following'
+
+		const result = await findAllFollower(
+			req.body.beforeTime
+				? {
+						...query,
+						createdAt: { $lt: req.body.beforeTime }
+				  }
+				: query,
+			'',
+			{
+				sort: { createdAt: -1 },
+				limit: parseInt(process.env.NUMBER_OF_DOCUMENT_PER_REQUEST as string),
+				lean: true,
+				populate: {
+					path,
+					select: UserProjection,
+					options: { lean: true }
+				}
+			}
+		)
+		return res.status(200).send({ result })
+	} catch (e: any) {
+		logger.error(`getFollowingOrFollowerHandler ${JSON.stringify(e)}`)
 		return res.status(500).send(e)
 	}
 }
