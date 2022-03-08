@@ -8,8 +8,8 @@ export interface Follower {
 
 const FollowerSchema = new Schema<Follower>(
 	{
-		followerId: { type: Schema.Types.ObjectId, required: true },
-		followingId: { type: Schema.Types.ObjectId, required: true }
+		followerId: { type: Schema.Types.ObjectId, ref: 'User', required: true },
+		followingId: { type: Schema.Types.ObjectId, ref: 'User', required: true }
 	},
 	{ timestamps: true }
 )

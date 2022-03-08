@@ -9,8 +9,8 @@ export interface Clap {
 
 const ClapSchema = new Schema<Clap>(
 	{
-		userId: { type: Schema.Types.ObjectId, required: true },
-		blogId: { type: Schema.Types.ObjectId, required: true },
+		userId: { type: Schema.Types.ObjectId, ref: 'User', required: true },
+		blogId: { type: Schema.Types.ObjectId, ref: 'Blog', required: true },
 		claps: {
 			type: Number,
 			required: true,
