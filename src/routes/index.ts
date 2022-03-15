@@ -3,6 +3,7 @@ import user from './user.route'
 import blog from './blog.route'
 import clap from './clap.route'
 import follower from './follower.route'
+import comment from './comment.route'
 
 const router = express.Router()
 
@@ -14,4 +15,5 @@ router.use(user)
 router.use(blog)
 router.use(clap)
 router.use(follower)
+router.use(comment)
 export default router
