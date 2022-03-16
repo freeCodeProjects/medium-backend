@@ -19,7 +19,7 @@ const CommentSchema = new Schema<Comment>(
 		comment: { type: String, required: true, trim: true, minlength: 3 },
 		clapsCount: { type: Number, default: 0 },
 		responsesCount: { type: Number, default: 0 },
-		relatedTo: { type: String, enum: ['blog', 'comment'] }
+		relatedTo: { type: String, enum: ['blog', 'comment'], required: true }
 	},
 	{
 		timestamps: true,
