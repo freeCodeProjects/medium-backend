@@ -18,7 +18,7 @@ export async function findAndUpdateClap(
 	update: UpdateQuery<Clap>,
 	options: QueryOptions = {}
 ): Promise<Clap | null> {
-	const defaultOptions = { lean: true }
+	const defaultOptions = { lean: true, new: true }
 	return ClapModel.findOneAndUpdate(condition, update, {
 		...defaultOptions,
 		...options

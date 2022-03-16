@@ -6,25 +6,20 @@ import {
 	AddClapInput,
 	GetClapParams
 } from '../schemas/clap.schema'
-import { findAndUpdateBlog } from '../services/blog.service'
 
 export async function addClapHandler(
 	req: Request<AddClapParams, {}, AddClapInput>,
 	res: Response
 ) {
 	try {
+		const { claps, relatedTo } = req.body
+
 		const clap = await findAndUpdateClap(
-			{ userId: req.user?._id, blogId: req.params.blogId },
-			{ claps: req.body.claps },
+			{ userId: req.user?._id, postId: req.params.postId },
+			{ claps, relatedTo },
 			{ upsert: true, runValidators: true }
 		)
-		//update claps count in blog
-		const newClaps = clap ? req.body.claps - clap!.claps : req.body.claps
-		const blog = await findAndUpdateBlog(
-			{ _id: req.params.blogId },
-			{ $inc: { claps: newClaps } }
-		)
-		return res.status(200).send(blog)
+		return res.status(200).send({ clap })
 	} catch (e: any) {
 		logger.error(`addClapHandler ${JSON.stringify(e)}`)
 		return res.status(500).send(e)
@@ -38,9 +33,9 @@ export async function getClapHandler(
 	try {
 		const clap = await findClap({
 			userId: req.user?._id,
-			blogId: req.params.blogId
+			postId: req.params.postId
 		})
-		return res.status(200).send(clap)
+		return res.status(200).send({ clap })
 	} catch (e: any) {
 		logger.error(`getClapHandler ${JSON.stringify(e)}`)
 		return res.status(500).send(e)

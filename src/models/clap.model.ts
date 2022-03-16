@@ -3,14 +3,16 @@ import { Schema, Types, model } from 'mongoose'
 export interface Clap {
 	_id: Types.ObjectId
 	userId: Types.ObjectId
-	blogId: Types.ObjectId
+	postId: Types.ObjectId
 	claps: number
+	relatedTo: 'blog' | 'comment'
 }
 
 const ClapSchema = new Schema<Clap>(
 	{
 		userId: { type: Schema.Types.ObjectId, ref: 'User', required: true },
-		blogId: { type: Schema.Types.ObjectId, ref: 'Blog', required: true },
+		postId: { type: Schema.Types.ObjectId, required: true },
+		relatedTo: { type: String, enum: ['blog', 'comment'], required: true },
 		claps: {
 			type: Number,
 			required: true,

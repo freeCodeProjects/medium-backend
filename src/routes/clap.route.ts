@@ -7,13 +7,13 @@ import { AddClapSchema, GetClapSchema } from '../schemas/clap.schema'
 const router = express.Router()
 
 router.get(
-	'/api/clap/:blogId',
+	'/api/clap/:postId',
 	[authMiddleware, validateResource(GetClapSchema)],
 	getClapHandler
 )
 
 router.post(
-	'/api/clap/:blogId',
+	'/api/clap/:postId',
 	[authMiddleware, validateResource(AddClapSchema)],
 	addClapHandler
 )

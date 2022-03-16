@@ -1,8 +1,8 @@
-import { number, object, string, TypeOf } from 'zod'
+import { number, object, string, TypeOf, z } from 'zod'
 
 export const GetClapSchema = object({
 	params: object({
-		blogId: string()
+		postId: string()
 	}).strict()
 })
 
@@ -13,10 +13,11 @@ export const AddClapSchema = object({
 			invalid_type_error: 'claps must be a number'
 		}).max(50, {
 			message: 'max claps value is 50'
-		})
+		}),
+		relatedTo: z.enum(['blog', 'comment'])
 	}).strict(),
 	params: object({
-		blogId: string()
+		postId: string()
 	}).strict()
 })
 
