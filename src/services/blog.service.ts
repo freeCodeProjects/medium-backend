@@ -6,7 +6,11 @@ export async function findAllBlog(
 	projection?: any,
 	options: QueryOptions = {}
 ): Promise<Blog[] | null> {
-	return BlogModel.find(query, projection, options)
+	const defaultOptions = { lean: true }
+	return BlogModel.find(query, projection, {
+		...defaultOptions,
+		...options
+	})
 }
 
 export async function findAndUpdateBlog(
@@ -14,7 +18,7 @@ export async function findAndUpdateBlog(
 	update: UpdateQuery<Blog>,
 	options: QueryOptions = {}
 ): Promise<Blog | null> {
-	const defaultOptions = { new: true }
+	const defaultOptions = { new: true, lean: true }
 	return BlogModel.findOneAndUpdate(condition, update, {
 		...defaultOptions,
 		...options

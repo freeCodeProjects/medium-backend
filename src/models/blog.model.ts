@@ -11,8 +11,8 @@ export interface Blog {
 	tags: string[]
 	userId: Types.ObjectId
 	previewImage: string
-	claps: number
-	commentCount: number
+	clapsCount: number
+	responsesCount: number
 	publishedAt: Date
 	readTime: number
 }
@@ -28,8 +28,8 @@ const BlogSchema = new Schema<Blog>(
 		tags: [{ type: String, trim: true }],
 		userId: { type: Schema.Types.ObjectId, required: true, ref: 'User' },
 		previewImage: { type: String, trim: true, default: '' },
-		claps: { type: Number, default: 0 },
-		commentCount: { type: Number, default: 0 },
+		clapsCount: { type: Number, default: 0 },
+		responsesCount: { type: Number, default: 0 },
 		publishedAt: { type: Date },
 		readTime: { type: Number, default: 0 }
 	},

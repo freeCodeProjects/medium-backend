@@ -1,12 +1,12 @@
 import express from 'express'
 import {
-	AddOrUpdateBlogHandler,
+	addOrUpdateBlogHandler,
 	getBookMarkOrPreviouslyReadHandler,
-	GetLatestBlogHandler,
-	GetTrendingBlogHandler,
+	getLatestBlogHandler,
+	getTrendingBlogHandler,
 	getUserDraftBlogHandler,
 	getUserPublishedBlogHandler,
-	PublishBlogHandler
+	publishBlogHandler
 } from '../controllers/blog.controller'
 import { authMiddleware } from '../middlewares/authMiddleware'
 import { validateResource } from '../middlewares/validateResource'
@@ -26,22 +26,22 @@ const router = express.Router()
 router.post(
 	'/api/addOrUpdateBlog/:id?',
 	[authMiddleware, validateResource(AddOrUpdateBlogSchema)],
-	AddOrUpdateBlogHandler
+	addOrUpdateBlogHandler
 )
 
 router.post(
 	'/api/publishBlog/:id?',
 	[authMiddleware, validateResource(PublishBlogSchema)],
-	PublishBlogHandler
+	publishBlogHandler
 )
 
 router.get(
 	'/api/getLatest',
 	[authMiddleware, validateResource(GetLatestBlogSchema)],
-	GetLatestBlogHandler
+	getLatestBlogHandler
 )
 
-router.get('/api/getTrending', authMiddleware, GetTrendingBlogHandler)
+router.get('/api/getTrending', authMiddleware, getTrendingBlogHandler)
 
 router.get(
 	'/api/getBookmarkBlogs',

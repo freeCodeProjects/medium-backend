@@ -15,7 +15,7 @@ import { Types } from 'mongoose'
 import { getReadingTime } from '../utils/helper'
 import { BlogProjection, UserProjection } from '../utils/projection'
 
-export async function AddOrUpdateBlogHandler(
+export async function addOrUpdateBlogHandler(
 	req: Request<AddOrUpdateBlogParams, {}, AddOrUpdateBlogInput>,
 	res: Response
 ) {
@@ -34,7 +34,7 @@ export async function AddOrUpdateBlogHandler(
 	}
 }
 
-export async function PublishBlogHandler(
+export async function publishBlogHandler(
 	req: Request<PublishBlogParams, {}, PublishBlogInput>,
 	res: Response
 ) {
@@ -67,23 +67,22 @@ export async function PublishBlogHandler(
 	}
 }
 
-export async function GetLatestBlogHandler(
+export async function getLatestBlogHandler(
 	req: Request<{}, {}, GetLatestBlogInput>,
 	res: Response
 ) {
 	try {
+		const publishedAtTime = req.body.beforeTime || new Date()
+
 		const blogs = await findAllBlog(
-			req.body.beforeTime
-				? {
-						status: 'published',
-						publishedAt: { $lt: req.body.beforeTime }
-				  }
-				: { status: 'published' },
+			{
+				status: 'published',
+				publishedAt: { $lt: publishedAtTime }
+			},
 			BlogProjection,
 			{
 				sort: { publishedAt: -1 },
 				limit: parseInt(process.env.NUMBER_OF_DOCUMENT_PER_REQUEST as string),
-				lean: true,
 				populate: {
 					path: 'user',
 					options: {
@@ -100,12 +99,11 @@ export async function GetLatestBlogHandler(
 	}
 }
 
-export async function GetTrendingBlogHandler(req: Request, res: Response) {
+export async function getTrendingBlogHandler(req: Request, res: Response) {
 	try {
 		const blogs = await findAllBlog({ status: 'published' }, BlogProjection, {
 			sort: { claps: -1, publishedAt: -1 },
 			limit: 6,
-			lean: true,
 			populate: {
 				path: 'user',
 				options: {
@@ -148,7 +146,6 @@ export async function getBookMarkOrPreviouslyReadHandler(
 		}
 
 		const docs = await findAllBlog({ _id: { $in: currDocs } }, BlogProjection, {
-			lean: true,
 			populate: {
 				path: 'user',
 				options: {
@@ -189,8 +186,7 @@ export async function getUserDraftBlogHandler(
 			BlogProjection,
 			{
 				sort: { updatedAt: -1 },
-				limit: parseInt(process.env.NUMBER_OF_DOCUMENT_PER_REQUEST as string),
-				lean: true
+				limit: parseInt(process.env.NUMBER_OF_DOCUMENT_PER_REQUEST as string)
 			}
 		)
 		return res.status(200).send(blogs)
@@ -216,8 +212,7 @@ export async function getUserPublishedBlogHandler(
 			BlogProjection,
 			{
 				sort: { publishedAt: -1 },
-				limit: parseInt(process.env.NUMBER_OF_DOCUMENT_PER_REQUEST as string),
-				lean: true
+				limit: parseInt(process.env.NUMBER_OF_DOCUMENT_PER_REQUEST as string)
 			}
 		)
 		return res.status(200).send(blogs)
