@@ -13,10 +13,12 @@ export async function addClapHandler(
 ) {
 	try {
 		const { claps, relatedTo } = req.body
+		const { postId } = req.params
 
+		const id = `userId:${req.user?._id}-postId:${postId}`
 		const clap = await findAndUpdateClap(
-			{ userId: req.user?._id, postId: req.params.postId },
-			{ claps, relatedTo },
+			{ _id: id },
+			{ claps, relatedTo, postId, userId: req.user?._id },
 			{ upsert: true, runValidators: true }
 		)
 		return res.status(200).send({ clap })
@@ -31,9 +33,9 @@ export async function getClapHandler(
 	res: Response
 ) {
 	try {
+		const id = `userId:${req.user?._id}-postId:${req.params.postId}`
 		const clap = await findClap({
-			userId: req.user?._id,
-			postId: req.params.postId
+			_id: id
 		})
 		return res.status(200).send({ clap })
 	} catch (e: any) {

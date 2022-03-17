@@ -1,7 +1,7 @@
 import { Schema, Types, model } from 'mongoose'
 
 export interface Clap {
-	_id: Types.ObjectId
+	_id: string
 	userId: Types.ObjectId
 	postId: Types.ObjectId
 	claps: number
@@ -10,6 +10,7 @@ export interface Clap {
 
 const ClapSchema = new Schema<Clap>(
 	{
+		_id: { type: String, required: true },
 		userId: { type: Schema.Types.ObjectId, ref: 'User', required: true },
 		postId: { type: Schema.Types.ObjectId, required: true },
 		relatedTo: { type: String, enum: ['blog', 'comment'], required: true },
@@ -20,7 +21,7 @@ const ClapSchema = new Schema<Clap>(
 			max: 50
 		}
 	},
-	{ timestamps: true }
+	{ timestamps: true, _id: false }
 )
 
 const ClapModel = model<Clap>('Clap', ClapSchema)
