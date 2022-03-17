@@ -3,6 +3,7 @@ import { model, Schema, Types } from 'mongoose'
 export interface Blog {
 	_id: Types.ObjectId
 	title: string
+	slug: string
 	publishedTitle: string
 	subTitle: string
 	content: object
@@ -20,6 +21,7 @@ export interface Blog {
 const BlogSchema = new Schema<Blog>(
 	{
 		title: { type: String, default: 'untitled story', trim: true },
+		slug: { type: String, unique: true },
 		publishedTitle: { type: String, default: 'untitled story', trim: true },
 		subTitle: { type: String, default: '', trim: true },
 		content: { type: Map, default: '' },

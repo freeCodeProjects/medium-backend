@@ -1,3 +1,6 @@
+import slugify from 'slugify'
+import { nanoid } from 'nanoid'
+
 export function encodeBase64(data: string) {
 	return Buffer.from(`${data}`).toString('base64')
 }
@@ -34,4 +37,10 @@ export function getReadingTime(content: any): number {
 		}
 	}
 	return Math.max(Math.ceil(wordCount / wps + imageTime / 60), 1)
+}
+
+export const generateSlug = (text: string) => {
+	return `${slugify(text, { remove: /[*+~.()'"!:@]/g, lower: true })}-${nanoid(
+		12
+	)}`
 }

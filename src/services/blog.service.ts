@@ -13,6 +13,18 @@ export async function findAllBlog(
 	})
 }
 
+export async function findBlog(
+	query: FilterQuery<Blog>,
+	projection?: any,
+	options: QueryOptions = {}
+): Promise<Blog | null> {
+	const defaultOptions = { lean: true }
+	return BlogModel.findOne(query, projection, {
+		...defaultOptions,
+		...options
+	})
+}
+
 export async function findAndUpdateBlog(
 	condition: FilterQuery<Blog>,
 	update: UpdateQuery<Blog>,

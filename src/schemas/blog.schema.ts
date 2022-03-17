@@ -23,6 +23,12 @@ export const PublishBlogSchema = object({
 	}).strict()
 })
 
+export const GetBlogBySlugSchema = object({
+	params: object({
+		slug: string()
+	}).strict()
+})
+
 export const GetLatestBlogSchema = object({
 	body: object({
 		beforeTime: string()
@@ -54,6 +60,7 @@ export type AddOrUpdateBlogParams = TypeOf<
 export type PublishBlogInput = TypeOf<typeof PublishBlogSchema>['body']
 export type PublishBlogParams = TypeOf<typeof PublishBlogSchema>['params']
 export type GetLatestBlogInput = TypeOf<typeof GetLatestBlogSchema>['body']
+export type GetBlogBySlugParams = TypeOf<typeof GetBlogBySlugSchema>['params']
 export type GetBookMarkOrPreviouslyReadInput = TypeOf<
 	typeof GetBookMarkOrPreviouslyReadSchema
 >['body']

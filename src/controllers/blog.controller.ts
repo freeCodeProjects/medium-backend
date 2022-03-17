@@ -8,11 +8,16 @@ import {
 	PublishBlogInput,
 	GetBookMarkOrPreviouslyReadInput,
 	GetUserPublishedBlogInput,
-	GetUserDraftBlogInput
+	GetUserDraftBlogInput,
+	GetBlogBySlugParams
 } from '../schemas/blog.schema'
-import { findAllBlog, findAndUpdateBlog } from '../services/blog.service'
+import {
+	findAllBlog,
+	findAndUpdateBlog,
+	findBlog
+} from '../services/blog.service'
 import { Types } from 'mongoose'
-import { getReadingTime } from '../utils/helper'
+import { getReadingTime, generateSlug } from '../utils/helper'
 import { BlogProjection, UserProjection } from '../utils/projection'
 
 export async function addOrUpdateBlogHandler(
@@ -56,6 +61,9 @@ export async function publishBlogHandler(
 					status: 'published',
 					publishedAt: {
 						$ifNull: ['$publishedAt', new Date()]
+					},
+					slug: {
+						$ifNull: [generateSlug(req.body.title), '$slug']
 					}
 				}
 			}
@@ -63,6 +71,19 @@ export async function publishBlogHandler(
 		return res.status(200).send(blog)
 	} catch (e: any) {
 		logger.error(`PublishBlogHandler ${JSON.stringify(e)}`)
+		return res.status(500).send(e)
+	}
+}
+
+export async function getBlogBySlugHandler(
+	req: Request<GetBlogBySlugParams>,
+	res: Response
+) {
+	try {
+		const blog = await findBlog({ slug: req.params.slug }, BlogProjection)
+		return res.status(200).send(blog)
+	} catch (e: any) {
+		logger.error(`getBlogBySlugHandler ${JSON.stringify(e)}`)
 		return res.status(500).send(e)
 	}
 }
