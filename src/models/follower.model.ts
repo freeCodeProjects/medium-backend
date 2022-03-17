@@ -1,17 +1,18 @@
 import { Types, Schema, model } from 'mongoose'
 
 export interface Follower {
-	_id: Types.ObjectId
+	_id: string
 	followerId: Types.ObjectId
 	followingId: Types.ObjectId
 }
 
 const FollowerSchema = new Schema<Follower>(
 	{
+		_id: { type: String, required: true },
 		followerId: { type: Schema.Types.ObjectId, ref: 'User', required: true },
 		followingId: { type: Schema.Types.ObjectId, ref: 'User', required: true }
 	},
-	{ timestamps: true }
+	{ timestamps: true, _id: true }
 )
 
 FollowerSchema.virtual('follower', {

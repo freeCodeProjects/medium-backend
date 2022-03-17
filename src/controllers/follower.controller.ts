@@ -10,7 +10,6 @@ import {
 	RemoveFollowerParams
 } from '../schemas/follower.schema'
 import { Types } from 'mongoose'
-import { findAndUpdateUser } from '../services/user.service'
 import { UserProjection } from '../utils/projection'
 import {
 	GetFollowingOrFollowerParams,
@@ -27,27 +26,15 @@ export async function addFollowerController(
 		//id of person who is following
 		const followerId = new Types.ObjectId(req.user?._id)
 
+		const id = `follower:${followerId}-following:${followingId}`
 		//add the follower to collection
-		await addFollower({
+		const follower = await addFollower({
+			_id: id,
 			followerId,
 			followingId
 		})
 
-		//update the follower count
-		const following = await findAndUpdateUser(
-			{ _id: followingId },
-			{ $inc: { followerCount: 1 } },
-			{ projection: UserProjection }
-		)
-
-		//update the following count
-		const follower = await findAndUpdateUser(
-			{ _id: followerId },
-			{ $inc: { followingCount: 1 } },
-			{ projection: `${UserProjection} bookmarks` }
-		)
-
-		return res.status(200).send({ follower, following })
+		return res.status(200).send({ follower })
 	} catch (e: any) {
 		logger.error(`addFollowerController ${JSON.stringify(e)}`)
 		return res.status(500).send(e)
@@ -64,27 +51,13 @@ export async function removeFollowerController(
 		//id of person who is following
 		const followerId = new Types.ObjectId(req.user?._id)
 
+		const id = `follower:${followerId}-following:${followingId}`
 		//add the follower to collection
 		await removeFollower({
-			followerId,
-			followingId
+			_id: id
 		})
 
-		//update the follower count
-		const following = await findAndUpdateUser(
-			{ _id: followingId },
-			{ $inc: { followerCount: -1 } },
-			{ projection: UserProjection }
-		)
-
-		//update the following count
-		const follower = await findAndUpdateUser(
-			{ _id: followerId },
-			{ $inc: { followingCount: -1 } },
-			{ projection: `${UserProjection} bookmarks` }
-		)
-
-		return res.status(200).send({ follower, following })
+		return res.status(200).send('Unfollow successful.')
 	} catch (e: any) {
 		logger.error(`removeFollowerController ${JSON.stringify(e)}`)
 		return res.status(500).send(e)
