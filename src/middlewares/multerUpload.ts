@@ -29,7 +29,7 @@ export const uploadImageMiddleWare =
 				}
 				next()
 			} catch (e: any) {
-				logger.error(`updateImageHandler ${JSON.stringify(e.message)}`)
+				logger.error(`uploadImageMiddleWare ${JSON.stringify(e.message)}`)
 				return res.status(409).send(e.message)
 			}
 		})
