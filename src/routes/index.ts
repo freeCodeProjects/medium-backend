@@ -4,6 +4,7 @@ import blog from './blog.route'
 import clap from './clap.route'
 import follower from './follower.route'
 import comment from './comment.route'
+import notification from './notification.route'
 
 const router = express.Router()
 
@@ -16,4 +17,5 @@ router.use(blog)
 router.use(clap)
 router.use(follower)
 router.use(comment)
+router.use(notification)
 export default router
