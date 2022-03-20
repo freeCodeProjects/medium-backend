@@ -7,7 +7,6 @@ import {
 	GetTopCommentInput,
 	GetLatestCommentInput
 } from '../schemas/comment.schema'
-import { findAndUpdateBlog } from '../services/blog.service'
 import {
 	addComment,
 	findAllComment,
@@ -130,19 +129,7 @@ export async function addCommentController(
 	res: Response
 ) {
 	try {
-		const { relatedTo, postId } = req.body
-
 		const comment = await addComment({ userId: req.user?._id, ...req.body })
-
-		//Update the response Count
-		if (relatedTo === 'comment') {
-			await findAndUpdateComment(
-				{ _id: postId },
-				{ $inc: { responsesCount: 1 } }
-			)
-		} else if (relatedTo === 'blog') {
-			await findAndUpdateBlog({ _id: postId }, { $inc: { responsesCount: 1 } })
-		}
 
 		//@ts-ignore
 		await comment.populate({

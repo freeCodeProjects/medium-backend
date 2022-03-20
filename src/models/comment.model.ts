@@ -1,6 +1,4 @@
 import { Types, Schema, model } from 'mongoose'
-import { findAndUpdateBlog } from '../services/blog.service'
-import { findAndUpdateComment } from '../services/comment.service'
 
 export interface Comment {
 	_id: Types.ObjectId
@@ -40,20 +38,6 @@ CommentSchema.virtual('user', {
 	justOne: true,
 	localField: 'userId',
 	foreignField: '_id'
-})
-
-CommentSchema.pre('deleteOne', async function (next) {
-	//Update the response Count
-	const { relatedTo, postId } = await this.model.findOne(this.getQuery())
-	if (relatedTo === 'comment') {
-		await findAndUpdateComment(
-			{ _id: postId },
-			{ $inc: { responsesCount: -1 } }
-		)
-	} else if (relatedTo === 'blog') {
-		await findAndUpdateBlog({ _id: postId }, { $inc: { responsesCount: -1 } })
-	}
-	next()
 })
 
 const CommentModel = model<Comment>('Comment', CommentSchema)
