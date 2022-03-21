@@ -13,7 +13,8 @@ import {
 	updateUserNameHandler,
 	addToBookmarkHandler,
 	removeFromBookmarkHandler,
-	previouslyReadHandler
+	previouslyReadHandler,
+	deleteUserController
 } from '../controllers/user.controller'
 import { authMiddleware } from '../middlewares/authMiddleware'
 import { validateResource } from '../middlewares/validateResource'
@@ -48,7 +49,7 @@ router.get(
 
 router.post('/api/login', validateResource(LoginUserSchema), loginUserHandler)
 
-router.delete('/api/logout', authMiddleware, logoutUserHandler)
+router.post('/api/logout', authMiddleware, logoutUserHandler)
 
 router.post(
 	'/api/resetpasswordmail',
@@ -109,5 +110,7 @@ router.post(
 	[authMiddleware, validateResource(PreviouslyReadSchema)],
 	previouslyReadHandler
 )
+
+router.delete('/api/user', authMiddleware, deleteUserController)
 
 export default router

@@ -33,3 +33,7 @@ export async function findAndUpdateUser(
 		...options
 	})
 }
+
+export async function removeUser(condition: FilterQuery<Comment>) {
+	return UserModel.deleteOne(condition)
+}

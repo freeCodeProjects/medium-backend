@@ -2,7 +2,8 @@ import { Request, Response } from 'express'
 import {
 	createUser,
 	findAndUpdateUser,
-	findUser
+	findUser,
+	removeUser
 } from '../services/user.service'
 import { generateAuthToken } from '../utils/jwt'
 import { sendEmail } from '../utils/emailer'
@@ -329,6 +330,19 @@ export async function previouslyReadHandler(
 		return res.status(200).send('Added to previously read.')
 	} catch (e: any) {
 		logger.error(`previouslyReadHandler ${JSON.stringify(e)}`)
+		return res.status(500).send(e)
+	}
+}
+
+export async function deleteUserController(req: Request, res: Response) {
+	try {
+		const result = await removeUser({
+			_id: req.user?._id
+		})
+
+		res.status(200).send({ result })
+	} catch (e: any) {
+		logger.error(`deleteUserController ${JSON.stringify(e)}`)
 		return res.status(500).send(e)
 	}
 }
