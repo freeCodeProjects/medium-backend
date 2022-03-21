@@ -13,7 +13,7 @@ router.get(
 )
 
 router.post(
-	'/api/clap/:postId',
+	'/api/clap',
 	[authMiddleware, validateResource(AddClapSchema)],
 	addClapHandler
 )

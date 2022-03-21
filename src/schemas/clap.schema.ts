@@ -14,13 +14,10 @@ export const AddClapSchema = object({
 		}).max(50, {
 			message: 'max claps value is 50'
 		}),
-		relatedTo: z.enum(['blog', 'comment'])
-	}).strict(),
-	params: object({
+		relatedTo: z.enum(['blog', 'comment']),
 		postId: string()
 	}).strict()
 })
 
 export type GetClapParams = TypeOf<typeof GetClapSchema>['params']
 export type AddClapInput = TypeOf<typeof AddClapSchema>['body']
-export type AddClapParams = TypeOf<typeof AddClapSchema>['params']

@@ -8,12 +8,11 @@ import {
 } from '../schemas/clap.schema'
 
 export async function addClapHandler(
-	req: Request<AddClapParams, {}, AddClapInput>,
+	req: Request<{}, {}, AddClapInput>,
 	res: Response
 ) {
 	try {
-		const { claps, relatedTo } = req.body
-		const { postId } = req.params
+		const { claps, relatedTo, postId } = req.body
 
 		const id = `userId:${req.user?._id}-postId:${postId}`
 		const clap = await findAndUpdateClap(
