@@ -14,11 +14,13 @@ import {
 import {
 	findAllBlog,
 	findAndUpdateBlog,
-	findBlog
+	findBlog,
+	removeBlog
 } from '../services/blog.service'
 import { Types } from 'mongoose'
 import { getReadingTime, generateSlug } from '../utils/helper'
 import { BlogProjection, UserProjection } from '../utils/projection'
+import { DeleteBlogParams } from '../schemas/blog.schema'
 
 export async function addOrUpdateBlogHandler(
 	req: Request<AddOrUpdateBlogParams, {}, AddOrUpdateBlogInput>,
@@ -28,8 +30,8 @@ export async function addOrUpdateBlogHandler(
 		//generate a new id in case it is not supplied
 		const id = req.params.id || new Types.ObjectId()
 		const blog = await findAndUpdateBlog(
-			{ _id: id },
-			{ ...req.body, userId: req.user?._id },
+			{ _id: id, userId: req.user?._id },
+			{ ...req.body },
 			{ upsert: true }
 		)
 		return res.status(200).send(blog)
@@ -50,14 +52,13 @@ export async function publishBlogHandler(
 		//Work around for MongoServerError: Invalid $set :: caused by :: an empty object is not a valid value.
 		req.body.content = { $literal: req.body.content }
 
-		const blog = await findAndUpdateBlog({ _id: id }, [
+		const blog = await findAndUpdateBlog({ _id: id, userId: req.user?._id }, [
 			{
 				$set: {
 					...req.body,
 					readTime,
 					publishedTitle: req.body.title,
 					publishedContent: req.body.content,
-					userId: req.user?._id,
 					status: 'published',
 					publishedAt: {
 						$ifNull: ['$publishedAt', new Date()]
@@ -239,6 +240,23 @@ export async function getUserPublishedBlogHandler(
 		return res.status(200).send(blogs)
 	} catch (e: any) {
 		logger.error(`getUserPublishedBlogHandler ${JSON.stringify(e)}`)
+		return res.status(500).send(e)
+	}
+}
+
+export async function deleteBlogController(
+	req: Request<DeleteBlogParams>,
+	res: Response
+) {
+	try {
+		const result = await removeBlog({
+			_id: req.params.id,
+			userId: req.user?._id
+		})
+
+		res.status(200).send({ result })
+	} catch (e: any) {
+		logger.error(`deleteBlogController ${JSON.stringify(e)}`)
 		return res.status(500).send(e)
 	}
 }

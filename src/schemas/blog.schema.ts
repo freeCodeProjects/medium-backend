@@ -53,6 +53,12 @@ export const GetUserPublishedBlogSchema = object({
 	}).strict()
 })
 
+export const DeleteBlogSchema = object({
+	params: object({
+		id: string()
+	}).strict()
+})
+
 export type AddOrUpdateBlogInput = TypeOf<typeof AddOrUpdateBlogSchema>['body']
 export type AddOrUpdateBlogParams = TypeOf<
 	typeof AddOrUpdateBlogSchema
@@ -70,3 +76,4 @@ export type GetUserDraftBlogInput = TypeOf<
 export type GetUserPublishedBlogInput = TypeOf<
 	typeof GetUserPublishedBlogSchema
 >['body']
+export type DeleteBlogParams = TypeOf<typeof DeleteBlogSchema>['params']

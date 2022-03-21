@@ -36,3 +36,7 @@ export async function findAndUpdateBlog(
 		...options
 	})
 }
+
+export async function removeBlog(condition: FilterQuery<Comment>) {
+	return BlogModel.deleteOne(condition)
+}

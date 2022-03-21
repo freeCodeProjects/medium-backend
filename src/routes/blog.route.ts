@@ -1,6 +1,7 @@
 import express from 'express'
 import {
 	addOrUpdateBlogHandler,
+	deleteBlogController,
 	getBlogBySlugHandler,
 	getBookMarkOrPreviouslyReadHandler,
 	getLatestBlogHandler,
@@ -11,6 +12,7 @@ import {
 } from '../controllers/blog.controller'
 import { authMiddleware } from '../middlewares/authMiddleware'
 import { validateResource } from '../middlewares/validateResource'
+import { DeleteBlogSchema } from '../schemas/blog.schema'
 import {
 	GetBlogBySlugSchema,
 	GetUserDraftBlogSchema,
@@ -73,6 +75,12 @@ router.get(
 	'/api/userPublishedBlogs',
 	[authMiddleware, validateResource(GetUserPublishedBlogSchema)],
 	getUserPublishedBlogHandler
+)
+
+router.delete(
+	'/api/blog/:id',
+	[authMiddleware, validateResource(DeleteBlogSchema)],
+	deleteBlogController
 )
 
 export default router
