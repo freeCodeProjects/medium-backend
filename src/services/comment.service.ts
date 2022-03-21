@@ -41,6 +41,6 @@ export async function findAndUpdateComment(
 	})
 }
 
-export async function removeComment(_id: string) {
-	return CommentModel.deleteOne({ _id })
+export async function removeComment(condition: FilterQuery<Comment>) {
+	return CommentModel.deleteOne(condition)
 }

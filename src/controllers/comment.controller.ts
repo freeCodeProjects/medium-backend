@@ -166,8 +166,12 @@ export async function deleteCommentController(
 	res: Response
 ) {
 	try {
-		await removeComment(req.params.id)
-		res.status(200).send('Comment Deleted Succesfully.')
+		const result = await removeComment({
+			_id: req.params.id,
+			userId: req.user?._id
+		})
+
+		res.status(200).send({ result })
 	} catch (e: any) {
 		logger.error(`deleteCommentController ${JSON.stringify(e)}`)
 		return res.status(500).send(e)
