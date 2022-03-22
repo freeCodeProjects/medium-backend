@@ -1,11 +1,7 @@
 import { Request, Response } from 'express'
 import { findAndUpdateClap, findClap } from '../services/clap.service'
 import { logger } from '../utils/logger'
-import {
-	AddClapParams,
-	AddClapInput,
-	GetClapParams
-} from '../schemas/clap.schema'
+import { AddClapInput, GetClapParams } from '../schemas/clap.schema'
 
 export async function addClapHandler(
 	req: Request<{}, {}, AddClapInput>,
