@@ -8,9 +8,14 @@ export async function authMiddleware(
 	next: NextFunction
 ) {
 	try {
-		const token = req.headers.authorization?.replace('Bearer ', '') || ''
+		const token =
+			req?.cookies?.authToken ||
+			req.headers.authorization?.replace('Bearer ', '') ||
+			''
 		if (!token) {
-			return res.status(403).send('A token is required for authentication')
+			return res
+				.status(403)
+				.send({ message: 'A token is required for authentication' })
 		}
 		const decode = await verifyAuthToken(token)
 		const user = await findUser({
@@ -24,6 +29,7 @@ export async function authMiddleware(
 		req.user = user
 		next()
 	} catch (e) {
-		res.status(401).send({ error: 'Please authenticate.' })
+		res.clearCookie('authToken', { path: '/' })
+		res.status(401).send({ message: 'Please authenticate.' })
 	}
 }

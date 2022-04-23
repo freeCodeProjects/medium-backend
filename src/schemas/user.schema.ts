@@ -88,11 +88,21 @@ export const UpdateNameSchema = object({
 
 export const UpdateUserBioSchema = object({
 	body: object({
-		bio: string().min(6).max(160)
+		bio: string().max(160)
 	}).strict()
 })
 
-export const IsUserNameUniqueSchema = BodyWithUsername
+export const GetUserByUserNameSchema = object({
+	params: object({
+		userName: string()
+	}).strict()
+})
+
+export const IsUserNameUniqueSchema = object({
+	query: object({
+		userName: string().min(3).max(60)
+	}).strict()
+})
 
 export const UpdateUserNameSchema = BodyWithUsername
 
@@ -101,7 +111,7 @@ export const BookmarkBlogSchema = ParamWithBlogId
 export const PreviouslyReadSchema = ParamWithBlogId
 
 export type CreateUserInput = TypeOf<typeof CreateUserSchema>['body']
-export type VerifyUserInput = TypeOf<typeof VerifyUserSchema>['query']
+export type VerifyUserQuery = TypeOf<typeof VerifyUserSchema>['query']
 export type LoginUserInput = TypeOf<typeof LoginUserSchema>['body']
 export type ResetPasswordMailInput = TypeOf<
 	typeof ResetPasswordMailSchema
@@ -109,9 +119,12 @@ export type ResetPasswordMailInput = TypeOf<
 export type ResetPasswordInput = TypeOf<typeof ResetPasswordSchema>['body']
 export type UpdateNameInput = TypeOf<typeof UpdateNameSchema>['body']
 export type UpdateUserBioInput = TypeOf<typeof UpdateUserBioSchema>['body']
-export type IsUserNameUniqueInput = TypeOf<
+export type IsUserNameUniqueQuery = TypeOf<
 	typeof IsUserNameUniqueSchema
->['body']
+>['query']
 export type UpdateUserNameInput = TypeOf<typeof UpdateUserNameSchema>['body']
 export type BookmarkBlogParams = TypeOf<typeof BookmarkBlogSchema>['params']
 export type PreviouslyReadParams = TypeOf<typeof PreviouslyReadSchema>['params']
+export type GetUserByUserNameParams = TypeOf<
+	typeof GetUserByUserNameSchema
+>['params']

@@ -30,7 +30,7 @@ export const uploadImageMiddleWare =
 				next()
 			} catch (e: any) {
 				logger.error(`uploadImageMiddleWare ${JSON.stringify(e.message)}`)
-				return res.status(400).send(e.message)
+				return res.status(400).send({ message: e.message })
 			}
 		})
 	}

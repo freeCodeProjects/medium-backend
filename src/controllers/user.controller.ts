@@ -18,19 +18,22 @@ import { decodeBase64, encodeBase64 } from '../utils/helper'
 import { imageUploader } from '../utils/fileUploader'
 import {
 	CreateUserInput,
-	VerifyUserInput,
 	LoginUserInput,
 	ResetPasswordMailInput,
 	ResetPasswordInput,
 	UpdateNameInput,
 	UpdateUserBioInput,
 	BookmarkBlogParams,
-	IsUserNameUniqueInput,
 	UpdateUserNameInput,
-	PreviouslyReadParams
+	PreviouslyReadParams,
+	VerifyUserQuery,
+	IsUserNameUniqueQuery
 } from '../schemas/user.schema'
 import { UserProjection } from '../utils/projection'
 import { Types } from 'mongoose'
+import { GetUserByUserNameParams } from '../schemas/user.schema'
+
+const LoggedInUserProjection = `${UserProjection} bookmarks`
 
 export async function createUserHandler(
 	req: Request<{}, {}, CreateUserInput>,
@@ -45,13 +48,13 @@ export async function createUserHandler(
 				verificationId: user.verificationId
 			})
 		)
-		const buttonURL = `http://localhost:3001/api/verifyUser?token=${token}`
+		const buttonURL = `${process.env.ORIGIN_URL}/verifyUser?token=${token}`
 		const htmlData = signupEmailTemplate(buttonURL)
 		sendEmail('Medium account verification.', htmlData, user.email, user.name)
-		return res.status(200).send('Email send for verification.')
+		return res.status(200).send({ message: 'Email send for verification.' })
 	} catch (e: any) {
 		if (e.code === 11000) {
-			return res.status(409).send('Account already exists')
+			return res.status(409).send({ message: 'Account already exists' })
 		}
 		logger.error(`createUserHandler ${JSON.stringify(e)}`)
 		return res.status(500).send(e)
@@ -61,20 +64,20 @@ export async function createUserHandler(
 async function getUserDataWithToken(user: User) {
 	const token = await generateAuthToken({ id: user._id.toString() })
 	//add auth token to user document
-	const newUser = await findAndUpdateUser(
+	const userData = await findAndUpdateUser(
 		{ _id: user._id },
 		{ $push: { tokens: { token } } },
-		{ projection: `${UserProjection} bookmarks` }
+		{ projection: LoggedInUserProjection }
 	)
 	const result = {
-		user: newUser,
+		userData,
 		token
 	}
 	return result
 }
 
 export async function verifyUserHandler(
-	req: Request<{}, {}, {}, VerifyUserInput>,
+	req: Request<{}, {}, {}, VerifyUserQuery>,
 	res: Response
 ) {
 	try {
@@ -86,10 +89,18 @@ export async function verifyUserHandler(
 			{ verificationId: '', verified: true }
 		)
 		if (!user) {
-			res.status(404).send('User not Found')
+			res.status(404).send({ message: 'User not Found.' })
 		} else {
-			const result = await getUserDataWithToken(user)
-			res.status(200).send(result)
+			const { userData, token } = await getUserDataWithToken(user)
+
+			res.cookie('authToken', token, {
+				httpOnly: true,
+				secure: process.env.SECURE_COOKIE === 'true',
+				maxAge: parseInt(process.env.MAXAGE_COOKIE!),
+				domain: process.env.DOMAIN,
+				sameSite: 'strict'
+			})
+			res.status(200).send({ user: userData })
 		}
 	} catch (e: any) {
 		logger.error(`verifyUserHandler ${JSON.stringify(e)}`)
@@ -105,12 +116,21 @@ export async function loginUserHandler(
 	try {
 		const user = await findUser({ email: body.email, verified: true })
 		if (!user) {
-			return res.status(404).send('User not Found')
+			return res.status(404).send({ message: 'User not Found' })
 		} else {
 			const passwordMatch = await user.comparePassword(body.password)
-			if (!passwordMatch) return res.status(404).send('User not Found')
-			const result = await getUserDataWithToken(user)
-			return res.status(200).send(result)
+			if (!passwordMatch)
+				return res.status(404).send({ message: 'User not Found' })
+			const { userData, token } = await getUserDataWithToken(user)
+
+			res.cookie('authToken', token, {
+				httpOnly: true,
+				secure: process.env.SECURE_COOKIE === 'true',
+				maxAge: parseInt(process.env.MAXAGE_COOKIE!),
+				domain: process.env.DOMAIN,
+				sameSite: 'strict'
+			})
+			res.status(200).send({ user: userData })
 		}
 	} catch (e: any) {
 		logger.error(`loginUserHandler ${JSON.stringify(e)}`)
@@ -118,17 +138,60 @@ export async function loginUserHandler(
 	}
 }
 
+export async function getLoginUserHandler(req: Request, res: Response) {
+	try {
+		const {
+			_id,
+			name,
+			bio,
+			userName,
+			photo,
+			followerCount,
+			followingCount,
+			bookmarks
+		} = req.user!
+		return res.status(200).send({
+			user: {
+				_id,
+				name,
+				bio,
+				userName,
+				photo,
+				followerCount,
+				followingCount,
+				bookmarks
+			}
+		})
+	} catch (e: any) {
+		logger.error(`logoutUserHandler ${JSON.stringify(e)}`)
+		return res.status(500).send(e)
+	}
+}
+
+export async function getUserByUserNameHandler(
+	req: Request<GetUserByUserNameParams>,
+	res: Response
+) {
+	try {
+		const user = await findUser(
+			{ userName: req.params.userName },
+			LoggedInUserProjection
+		)
+		return res.status(200).send({ user })
+	} catch (e: any) {
+		logger.error(`getUserByUserNameHandler ${JSON.stringify(e)}`)
+		return res.status(500).send(e)
+	}
+}
+
 export async function logoutUserHandler(req: Request, res: Response) {
 	try {
-		const user = await findAndUpdateUser(
+		await findAndUpdateUser(
 			{ _id: req.user?._id },
 			{ $pull: { tokens: { token: req.token } } }
 		)
-		if (!user) {
-			return res.status(404).send('User not Found')
-		} else {
-			return res.status(200).send('Logout successful.')
-		}
+		res.clearCookie('authToken', { path: '/' })
+		return res.status(200).send({ message: 'Logout successful.' })
 	} catch (e: any) {
 		logger.error(`logoutUserHandler ${JSON.stringify(e)}`)
 		return res.status(500).send(e)
@@ -147,7 +210,7 @@ export async function resetPasswordMailHandler(
 			{ verificationId: newVerificationId }
 		)
 		if (!user) {
-			return res.status(404).send('User not Found')
+			return res.status(404).send({ message: 'User not Found' })
 		} else {
 			const token = encodeBase64(
 				JSON.stringify({
@@ -155,14 +218,16 @@ export async function resetPasswordMailHandler(
 					verificationId: newVerificationId
 				})
 			)
-			const buttonURL = `http://localhost:3001/api/resetpassword?token=${token}`
+			const buttonURL = `${process.env.ORIGIN_URL}/resetpassword?token=${token}`
 			await sendEmail(
 				'Reset password',
 				passwordResetTemplate(buttonURL),
 				user.email,
 				user.name
 			)
-			return res.status(200).send('Mail send successful.')
+			return res
+				.status(200)
+				.send({ message: 'Email send with link to reset password' })
 		}
 	} catch (e: any) {
 		logger.error(`resetPasswordMailHandler ${JSON.stringify(e)}`)
@@ -181,7 +246,7 @@ export async function resetPasswordHandler(
 		//mark user as verified
 		const user = await findUser({ ...tokenData })
 		if (!user) {
-			res.status(404).send('User not Found')
+			res.status(404).send({ message: 'User not Found' })
 		} else {
 			//save is used so that pre hook on save will run
 			user.verificationId = ''
@@ -190,7 +255,7 @@ export async function resetPasswordHandler(
 			user.tokens = []
 			await user.save()
 
-			return res.status(200).send('Password reset successful.')
+			return res.status(200).send({ message: 'Password reset successful.' })
 		}
 	} catch (e: any) {
 		logger.error(`resetPasswordHandler ${JSON.stringify(e)}`)
@@ -204,9 +269,15 @@ export async function updateNameHandler(
 ) {
 	try {
 		const { name } = req.body
-		req.user!.name = name
-		await req.user!.save()
-		return res.status(200).send(req.user)
+
+		const user = await findAndUpdateUser(
+			{ _id: req.user?._id },
+			{ name },
+			{
+				projection: LoggedInUserProjection
+			}
+		)
+		return res.status(200).send({ user })
 	} catch (e: any) {
 		logger.error(`updateNameHandler ${JSON.stringify(e)}`)
 		return res.status(500).send(e)
@@ -219,9 +290,14 @@ export async function updateBioHandler(
 ) {
 	try {
 		const { bio } = req.body
-		req.user!.bio = bio
-		await req.user!.save()
-		return res.status(200).send(req.user)
+		const user = await findAndUpdateUser(
+			{ _id: req.user?._id },
+			{ bio },
+			{
+				projection: LoggedInUserProjection
+			}
+		)
+		return res.status(200).send({ user })
 	} catch (e: any) {
 		logger.error(`updateBioHandler ${JSON.stringify(e)}`)
 		return res.status(500).send(e)
@@ -234,9 +310,14 @@ export async function uploadProfileImageHandler(req: Request, res: Response) {
 		const result = await imageUploader(file, name, 'avatar')
 
 		//update the user photo with result url
-		req.user!.photo = result.url
-		await req.user?.save()
-		return res.sendStatus(200)
+		const user = await findAndUpdateUser(
+			{ _id: req.user?._id },
+			{ photo: result.url },
+			{
+				projection: LoggedInUserProjection
+			}
+		)
+		return res.status(200).send({ user })
 	} catch (e: any) {
 		logger.error(`uploadProfileImageHandler ${JSON.stringify(e)}`)
 		return res.status(500).send(e)
@@ -244,15 +325,14 @@ export async function uploadProfileImageHandler(req: Request, res: Response) {
 }
 
 export async function isUserNameUniqueHandler(
-	req: Request<{}, {}, IsUserNameUniqueInput>,
+	req: Request<{}, {}, {}, IsUserNameUniqueQuery>,
 	res: Response
 ) {
 	try {
-		const result = await findUser({ userName: req.body.userName }, '_id', {
+		const result = await findUser({ userName: req.query.userName }, '_id', {
 			lean: true
 		})
-		console.log(result)
-		return res.status(200).send({ result })
+		return res.status(200).send({ isUnique: result ? false : true })
 	} catch (e: any) {
 		logger.error(`IsUserNameUniqueHandler ${JSON.stringify(e)}`)
 		return res.status(500).send(e)
@@ -265,9 +345,14 @@ export async function updateUserNameHandler(
 ) {
 	try {
 		const { userName } = req.body
-		req.user!.userName = userName
-		await req.user!.save()
-		return res.status(200).send(req.user)
+		const user = await findAndUpdateUser(
+			{ _id: req.user?._id },
+			{ userName },
+			{
+				projection: LoggedInUserProjection
+			}
+		)
+		return res.status(200).send({ user })
 	} catch (e: any) {
 		logger.error(`updateNameHandler ${JSON.stringify(e)}`)
 		return res.status(500).send(e)
@@ -283,7 +368,7 @@ export async function addToBookmarkHandler(
 		const user = await findAndUpdateUser(
 			{ _id: req.user?._id },
 			{ $addToSet: { bookmarks: blogId } },
-			{ projection: `${UserProjection} bookmarks` }
+			{ projection: LoggedInUserProjection }
 		)
 		return res.status(200).send(user)
 	} catch (e: any) {
@@ -301,7 +386,7 @@ export async function removeFromBookmarkHandler(
 		const user = await findAndUpdateUser(
 			{ _id: req.user?._id },
 			{ $pull: { bookmarks: blogId } },
-			{ projection: `${UserProjection} bookmarks` }
+			{ projection: LoggedInUserProjection }
 		)
 		return res.status(200).send(user)
 	} catch (e: any) {

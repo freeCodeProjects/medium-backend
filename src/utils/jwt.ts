@@ -7,7 +7,7 @@ export async function generateAuthToken(input: { id: string }) {
 	) as string
 	return jwt.sign(input, privateKey, {
 		algorithm: 'RS256',
-		expiresIn: '1h'
+		expiresIn: '7d' //same as maxage_cookie 1week
 	})
 }
 

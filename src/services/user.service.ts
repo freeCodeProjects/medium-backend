@@ -3,8 +3,10 @@ import { customAlphabet } from 'nanoid'
 import { FilterQuery, QueryOptions, UpdateQuery } from 'mongoose'
 
 export async function createUser(input: Partial<User>): Promise<User> {
-	const nanoid = customAlphabet('abcdefghijklmnopqrstuvwxyz', 5)
-	const userName = `${input.name}-${nanoid()}`.replace(/ /g, '-')
+	const nanoid = customAlphabet('1234567890', 5)
+	const userName = `${input.name
+		?.toLowerCase()
+		.replace(' ', '')}${nanoid()}`.replace(/ /g, '-')
 	const photo = `https://avatars.dicebear.com/api/bottts/${userName}.svg`
 
 	return UserModel.create({

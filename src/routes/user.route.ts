@@ -14,7 +14,9 @@ import {
 	addToBookmarkHandler,
 	removeFromBookmarkHandler,
 	previouslyReadHandler,
-	deleteUserController
+	deleteUserController,
+	getLoginUserHandler,
+	getUserByUserNameHandler
 } from '../controllers/user.controller'
 import { authMiddleware } from '../middlewares/authMiddleware'
 import { validateResource } from '../middlewares/validateResource'
@@ -32,81 +34,94 @@ import {
 	PreviouslyReadSchema
 } from '../schemas/user.schema'
 import { uploadImageMiddleWare } from '../middlewares/multerUpload'
+import { GetUserByUserNameSchema } from '../schemas/user.schema'
 
 const router = express.Router()
 
 router.post(
-	'/api/signup',
+	'/api/user/signup',
 	validateResource(CreateUserSchema),
 	createUserHandler
 )
 
 router.get(
-	'/api/verifyUser',
+	'/api/user/verify',
 	validateResource(VerifyUserSchema),
 	verifyUserHandler
 )
 
-router.post('/api/login', validateResource(LoginUserSchema), loginUserHandler)
+router.post(
+	'/api/user/login',
+	validateResource(LoginUserSchema),
+	loginUserHandler
+)
 
-router.post('/api/logout', authMiddleware, logoutUserHandler)
+router.get('/api/user/logout', authMiddleware, logoutUserHandler)
+
+router.get('/api/user/loggedIn', authMiddleware, getLoginUserHandler)
+
+router.get(
+	'/api/user/userName/:userName',
+	validateResource(GetUserByUserNameSchema),
+	getUserByUserNameHandler
+)
 
 router.post(
-	'/api/resetpasswordmail',
+	'/api/user/passwordResetMail',
 	validateResource(ResetPasswordMailSchema),
 	resetPasswordMailHandler
 )
 
-router.post(
-	'/api/resetpassword',
+router.patch(
+	'/api/user/password',
 	validateResource(ResetPasswordSchema),
 	resetPasswordHandler
 )
 
-router.post(
-	'/api/updateName',
+router.patch(
+	'/api/user/name',
 	[authMiddleware, validateResource(UpdateNameSchema)],
 	updateNameHandler
 )
 
-router.post(
-	'/api/updateBio',
+router.patch(
+	'/api/user/bio',
 	[authMiddleware, validateResource(UpdateUserBioSchema)],
 	updateBioHandler
 )
 
-router.post(
-	'/api/uploadProfileImage',
+router.patch(
+	'/api/user/photo',
 	[authMiddleware, uploadImageMiddleWare(1048576, 'profile')], //1MB=1048576
 	uploadProfileImageHandler
 )
 
 router.get(
-	'/api/isUserNameUnique',
+	'/api/user/isNameUnique',
 	[authMiddleware, validateResource(IsUserNameUniqueSchema)],
 	isUserNameUniqueHandler
 )
 
-router.post(
-	'/api/updateUserName',
+router.patch(
+	'/api/user/userName',
 	[authMiddleware, validateResource(UpdateUserNameSchema)],
 	updateUserNameHandler
 )
 
-router.post(
-	'/api/bookmarkBlog/:blogId',
+router.patch(
+	'/api/user/bookmarkBlog/:blogId',
 	[authMiddleware, validateResource(BookmarkBlogSchema)],
 	addToBookmarkHandler
 )
 
 router.delete(
-	'/api/bookmarkBlog/:blogId',
+	'/api/user/bookmarkBlog/:blogId',
 	[authMiddleware, validateResource(BookmarkBlogSchema)],
 	removeFromBookmarkHandler
 )
 
-router.post(
-	'/api/previouslyReadBlog/:blogId',
+router.patch(
+	'/api/user/previouslyReadBlog/:blogId',
 	[authMiddleware, validateResource(PreviouslyReadSchema)],
 	previouslyReadHandler
 )
