@@ -15,7 +15,7 @@ export async function authMiddleware(
 		if (!token) {
 			return res
 				.status(403)
-				.send({ message: 'A token is required for authentication' })
+				.send({ message: 'Auth Token is missing. Please authenticate.' })
 		}
 		const decode = await verifyAuthToken(token)
 		const user = await findUser({
