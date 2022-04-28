@@ -44,3 +44,12 @@ export const generateSlug = (text: string) => {
 		12
 	)}`
 }
+
+export const isFileImage = (file: File | Blob) => {
+	return file && file['type'].split('/')[0] === 'image'
+}
+
+export const validateFileSize = (file: File | Blob, sizeInMB: number) => {
+	let size = file.size / (sizeInMB * 1024 * 1024)
+	return size < sizeInMB
+}

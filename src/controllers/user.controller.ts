@@ -310,7 +310,14 @@ export async function updateBioHandler(
 export async function uploadProfileImageHandler(req: Request, res: Response) {
 	try {
 		const { originalname: name, buffer: file } = req.file!
-		const result = await imageUploader(file, name, 'avatar')
+		const ext = req.file?.mimetype.split('/')[1] || ''
+
+		const result = await imageUploader(
+			file,
+			req.user?._id.toHexString()! + '.' + ext,
+			'avatar',
+			false
+		)
 
 		//update the user photo with result url
 		const user = await findAndUpdateUser(

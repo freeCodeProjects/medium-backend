@@ -9,11 +9,13 @@ var imagekit = new ImageKit({
 export async function imageUploader(
 	data: string | Buffer,
 	name: string,
-	folder: string
+	folder: string,
+	useUniqueFileName: boolean = true
 ) {
 	return imagekit.upload({
 		file: data, //required
 		fileName: name,
-		folder: `/images/${folder}/`
+		folder: `/images/${folder}/`,
+		useUniqueFileName
 	})
 }

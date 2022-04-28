@@ -33,7 +33,7 @@ import {
 	BookmarkBlogSchema,
 	PreviouslyReadSchema
 } from '../schemas/user.schema'
-import { uploadImageMiddleWare } from '../middlewares/multerUpload'
+import { uploadImageMiddleware } from '../middlewares/multerUpload'
 import { GetUserByUserNameSchema } from '../schemas/user.schema'
 
 const router = express.Router()
@@ -92,7 +92,7 @@ router.patch(
 
 router.patch(
 	'/api/user/photo',
-	[authMiddleware, uploadImageMiddleWare(1048576, 'profile')], //1MB=1048576
+	[authMiddleware, uploadImageMiddleware(1048576, 'profile')], //1MB=1048576
 	uploadProfileImageHandler
 )
 
