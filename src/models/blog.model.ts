@@ -1,13 +1,19 @@
 import { model, Schema, Types } from 'mongoose'
 
+export type EditorData = {
+	time: string
+	blocks: Array<any>
+	version: string
+}
+
 export interface Blog {
 	_id: Types.ObjectId
 	title: string
 	slug: string
 	publishedTitle: string
 	subTitle: string
-	content: object
-	publishedContent: object
+	content: EditorData
+	publishedContent: EditorData
 	status: 'draft' | 'published'
 	tags: string[]
 	userId: Types.ObjectId

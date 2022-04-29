@@ -1,12 +1,25 @@
 import { object, string, TypeOf } from 'zod'
 
-export const AddOrUpdateBlogSchema = object({
+export const AddBlogSchema = object({
+	body: object({
+		title: string().optional(),
+		content: object({}).optional()
+	}).strict()
+})
+
+export const UpdateBlogSchema = object({
 	body: object({
 		title: string().optional(),
 		content: object({}).optional()
 	}).strict(),
 	params: object({
 		id: string().optional()
+	}).strict()
+})
+
+export const GetBlogByIdSchema = object({
+	params: object({
+		id: string()
 	}).strict()
 })
 
@@ -59,11 +72,17 @@ export const DeleteBlogSchema = object({
 	}).strict()
 })
 
-export type AddOrUpdateBlogInput = TypeOf<typeof AddOrUpdateBlogSchema>['body']
-export type AddOrUpdateBlogParams = TypeOf<
-	typeof AddOrUpdateBlogSchema
->['params']
+export const UploadEditorImageUrlSchema = object({
+	body: object({
+		url: string()
+	}).strict()
+})
+
+export type AddBlogInput = TypeOf<typeof AddBlogSchema>['body']
+export type UpdateBlogInput = TypeOf<typeof UpdateBlogSchema>['body']
+export type UpdateBlogParams = TypeOf<typeof UpdateBlogSchema>['params']
 export type PublishBlogInput = TypeOf<typeof PublishBlogSchema>['body']
+export type GetBlogByIdParams = TypeOf<typeof GetBlogByIdSchema>['params']
 export type PublishBlogParams = TypeOf<typeof PublishBlogSchema>['params']
 export type GetLatestBlogInput = TypeOf<typeof GetLatestBlogSchema>['body']
 export type GetBlogBySlugParams = TypeOf<typeof GetBlogBySlugSchema>['params']
@@ -77,3 +96,6 @@ export type GetUserPublishedBlogInput = TypeOf<
 	typeof GetUserPublishedBlogSchema
 >['body']
 export type DeleteBlogParams = TypeOf<typeof DeleteBlogSchema>['params']
+export type UploadEditorImageUrlInput = TypeOf<
+	typeof UploadEditorImageUrlSchema
+>['body']

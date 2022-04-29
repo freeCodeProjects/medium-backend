@@ -2,7 +2,7 @@ import multer from 'multer'
 import { Request, Response, NextFunction } from 'express'
 import { logger } from '../utils/logger'
 
-export const uploadImageMiddleWare =
+export const uploadImageMiddleware =
 	(size: number, name: string) =>
 	(req: Request, res: Response, next: NextFunction) => {
 		const uploadProfileImage = multer({
@@ -29,7 +29,7 @@ export const uploadImageMiddleWare =
 				}
 				next()
 			} catch (e: any) {
-				logger.error(`uploadImageMiddleWare ${JSON.stringify(e.message)}`)
+				logger.error(`uploadImageMiddleware ${JSON.stringify(e.message)}`)
 				return res.status(400).send({ message: e.message })
 			}
 		})

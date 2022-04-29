@@ -50,6 +50,6 @@ export const isFileImage = (file: File | Blob) => {
 }
 
 export const validateFileSize = (file: File | Blob, sizeInMB: number) => {
-	let size = file.size / (sizeInMB * 1024 * 1024)
+	let size = file.size / (1024 * 1024)
 	return size < sizeInMB
 }

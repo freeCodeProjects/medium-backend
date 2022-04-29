@@ -1,5 +1,12 @@
-import { FilterQuery, UpdateQuery, QueryOptions } from 'mongoose'
+import { FilterQuery, UpdateQuery, QueryOptions, Types } from 'mongoose'
 import BlogModel, { Blog } from '../models/blog.model'
+import { AddBlogInput } from '../schemas/blog.schema'
+
+export async function addBlog(
+	input: AddBlogInput & { userId: Types.ObjectId }
+): Promise<Blog> {
+	return BlogModel.create(input)
+}
 
 export async function findAllBlog(
 	query: FilterQuery<Blog>,

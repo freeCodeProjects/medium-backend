@@ -1,42 +1,84 @@
-import { Request, Response } from 'express'
+import e, { Request, Response } from 'express'
 import { logger } from '../utils/logger'
 import {
-	AddOrUpdateBlogInput,
-	AddOrUpdateBlogParams,
 	GetLatestBlogInput,
 	PublishBlogParams,
 	PublishBlogInput,
 	GetBookMarkOrPreviouslyReadInput,
 	GetUserPublishedBlogInput,
 	GetUserDraftBlogInput,
-	GetBlogBySlugParams
+	GetBlogBySlugParams,
+	GetBlogByIdParams,
+	AddBlogInput,
+	UpdateBlogParams,
+	UpdateBlogInput
 } from '../schemas/blog.schema'
 import {
+	addBlog,
 	findAllBlog,
 	findAndUpdateBlog,
 	findBlog,
 	removeBlog
 } from '../services/blog.service'
 import { Types } from 'mongoose'
-import { getReadingTime, generateSlug } from '../utils/helper'
+import {
+	getReadingTime,
+	generateSlug,
+	isFileImage,
+	validateFileSize
+} from '../utils/helper'
 import { BlogProjection, UserProjection } from '../utils/projection'
-import { DeleteBlogParams } from '../schemas/blog.schema'
+import {
+	DeleteBlogParams,
+	UploadEditorImageUrlInput
+} from '../schemas/blog.schema'
+import { imageUploader } from '../utils/fileUploader'
+import { nanoid } from 'nanoid'
+const fetch = require('node-fetch')
 
-export async function addOrUpdateBlogHandler(
-	req: Request<AddOrUpdateBlogParams, {}, AddOrUpdateBlogInput>,
+export async function addBlogHandler(
+	req: Request<{}, {}, AddBlogInput>,
 	res: Response
 ) {
 	try {
-		//generate a new id in case it is not supplied
-		const id = req.params.id || new Types.ObjectId()
-		const blog = await findAndUpdateBlog(
-			{ _id: id, userId: req.user?._id },
-			{ ...req.body },
-			{ upsert: true }
-		)
-		return res.status(200).send(blog)
+		const blog = await addBlog({ userId: req.user?._id!, ...req.body })
+		return res.status(200).send({ blog })
 	} catch (e: any) {
-		logger.error(`AddOrUpdateBlogHandler ${JSON.stringify(e)}`)
+		logger.error(`addBlogHandler ${JSON.stringify(e)}`)
+		return res.status(500).send(e)
+	}
+}
+
+export async function updateBlogHandler(
+	req: Request<UpdateBlogParams, {}, UpdateBlogInput>,
+	res: Response
+) {
+	try {
+		const blog = await findAndUpdateBlog(
+			{ _id: req.params.id, userId: req.user?._id },
+			{ ...req.body }
+		)
+		return res.status(200).send({ blog })
+	} catch (e: any) {
+		logger.error(`updateBlogHandler ${JSON.stringify(e)}`)
+		return res.status(500).send(e)
+	}
+}
+
+export async function getBlogByIdHandler(
+	req: Request<GetBlogByIdParams>,
+	res: Response
+) {
+	try {
+		const blog = await findBlog({ _id: req.params.id })
+
+		if (!blog) {
+			return res.status(404).send({ message: 'Blog not found.' })
+		}
+
+		return res.status(200).send({ blog })
+	} catch (e: any) {
+		logger.error(`getBlogByIdHandler ${JSON.stringify(e)}`)
 		return res.status(500).send(e)
 	}
 }
@@ -257,6 +299,73 @@ export async function deleteBlogController(
 		res.status(200).send({ result })
 	} catch (e: any) {
 		logger.error(`deleteBlogController ${JSON.stringify(e)}`)
+		return res.status(500).send(e)
+	}
+}
+
+export async function uploadEditorImageFileHandler(
+	req: Request,
+	res: Response
+) {
+	try {
+		const { originalname: name, buffer: file } = req.file!
+		const result = await imageUploader(file, name, 'editor')
+
+		return res.status(200).send({
+			success: 1,
+			file: {
+				url: result.url
+			}
+		})
+	} catch (e: any) {
+		logger.error(`uploadEditorImageFileHandler ${JSON.stringify(e)}`)
+		return res.status(500).send(e)
+	}
+}
+
+export async function uploadEditorImageUrlHandler(
+	req: Request<{}, {}, UploadEditorImageUrlInput>,
+	res: Response
+) {
+	try {
+		const url = req.body.url
+		let ext = ''
+		try {
+			const fileImg = await fetch(url)
+				.then((r: any) => r.blob())
+				.catch(() => {
+					throw new Error('Incorrect file provided.')
+				})
+
+			const isImage = isFileImage(fileImg)
+			if (!isImage) {
+				throw new Error('File is not image.')
+			}
+
+			ext = fileImg.type.split('/')[1]
+
+			const isValidFileSize = validateFileSize(fileImg, 3)
+			if (!isValidFileSize) {
+				throw new Error('File size is more than 3 MB.')
+			}
+		} catch (error: any) {
+			return res.status(400).send({ message: error.message })
+		}
+
+		const result = await imageUploader(
+			req.body.url,
+			nanoid() + '.' + ext,
+			'editor'
+		)
+
+		return res.status(200).send({
+			success: 1,
+			file: {
+				url: result.url
+			}
+		})
+	} catch (e: any) {
+		logger.error(`uploadEditorImageUrlHandler ${JSON.stringify(e)}`)
 		return res.status(500).send(e)
 	}
 }

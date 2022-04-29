@@ -1,26 +1,34 @@
 import express from 'express'
 import {
-	addOrUpdateBlogHandler,
+	addBlogHandler,
 	deleteBlogController,
+	getBlogByIdHandler,
 	getBlogBySlugHandler,
 	getBookMarkOrPreviouslyReadHandler,
 	getLatestBlogHandler,
 	getTrendingBlogHandler,
 	getUserDraftBlogHandler,
 	getUserPublishedBlogHandler,
-	publishBlogHandler
+	publishBlogHandler,
+	updateBlogHandler,
+	uploadEditorImageFileHandler,
+	uploadEditorImageUrlHandler
 } from '../controllers/blog.controller'
 import { authMiddleware } from '../middlewares/authMiddleware'
+import { uploadImageMiddleware } from '../middlewares/multerUpload'
 import { validateResource } from '../middlewares/validateResource'
-import { DeleteBlogSchema } from '../schemas/blog.schema'
+import { UploadEditorImageUrlSchema } from '../schemas/blog.schema'
+import {
+	AddBlogSchema,
+	DeleteBlogSchema,
+	GetBlogByIdSchema,
+	UpdateBlogSchema
+} from '../schemas/blog.schema'
 import {
 	GetBlogBySlugSchema,
 	GetUserDraftBlogSchema,
-	GetUserPublishedBlogSchema
-} from '../schemas/blog.schema'
-import {
+	GetUserPublishedBlogSchema,
 	GetBookMarkOrPreviouslyReadSchema,
-	AddOrUpdateBlogSchema,
 	GetLatestBlogSchema,
 	PublishBlogSchema
 } from '../schemas/blog.schema'
@@ -28,51 +36,63 @@ import {
 const router = express.Router()
 
 router.post(
-	'/api/addOrUpdateBlog/:id?',
-	[authMiddleware, validateResource(AddOrUpdateBlogSchema)],
-	addOrUpdateBlogHandler
+	'/api/blog',
+	[authMiddleware, validateResource(AddBlogSchema)],
+	addBlogHandler
+)
+
+router.patch(
+	'/api/blog/:id',
+	[authMiddleware, validateResource(UpdateBlogSchema)],
+	updateBlogHandler
+)
+
+router.get(
+	'/api/blog/:id',
+	[authMiddleware, validateResource(GetBlogByIdSchema)],
+	getBlogByIdHandler
 )
 
 router.post(
-	'/api/publishBlog/:id',
+	'/api/blog/publishBlog/:id',
 	[authMiddleware, validateResource(PublishBlogSchema)],
 	publishBlogHandler
 )
 
 router.get(
-	'/api/getBlogBySlug/:slug',
+	'/api/blog/slug/:slug',
 	[authMiddleware, validateResource(GetBlogBySlugSchema)],
 	getBlogBySlugHandler
 )
 
 router.get(
-	'/api/getLatestBlogs',
+	'/api/blog/latest',
 	[authMiddleware, validateResource(GetLatestBlogSchema)],
 	getLatestBlogHandler
 )
 
-router.get('/api/getTrendingBlogs', authMiddleware, getTrendingBlogHandler)
+router.get('/api/blog/trending', authMiddleware, getTrendingBlogHandler)
 
 router.get(
-	'/api/getBookmarkBlogs',
+	'/api/blog/bookmarks',
 	[authMiddleware, validateResource(GetBookMarkOrPreviouslyReadSchema)],
 	getBookMarkOrPreviouslyReadHandler
 )
 
 router.get(
-	'/api/getPreviouslyReadBlogs',
+	'/api/blog/previouslyRead',
 	[authMiddleware, validateResource(GetBookMarkOrPreviouslyReadSchema)],
 	getBookMarkOrPreviouslyReadHandler
 )
 
 router.get(
-	'/api/userDraftBlogs',
+	'/api/blog/draft',
 	[authMiddleware, validateResource(GetUserDraftBlogSchema)],
 	getUserDraftBlogHandler
 )
 
 router.get(
-	'/api/userPublishedBlogs',
+	'/api/blog/published',
 	[authMiddleware, validateResource(GetUserPublishedBlogSchema)],
 	getUserPublishedBlogHandler
 )
@@ -81,6 +101,18 @@ router.delete(
 	'/api/blog/:id',
 	[authMiddleware, validateResource(DeleteBlogSchema)],
 	deleteBlogController
+)
+
+router.post(
+	'/api/blog/editor/imageFile',
+	[authMiddleware, uploadImageMiddleware(3145728, 'image')],
+	uploadEditorImageFileHandler
+)
+
+router.post(
+	'/api/blog/editor/imageUrl',
+	[authMiddleware, validateResource(UploadEditorImageUrlSchema)],
+	uploadEditorImageUrlHandler
 )
 
 export default router
