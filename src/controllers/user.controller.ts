@@ -309,7 +309,7 @@ export async function updateBioHandler(
 
 export async function uploadProfileImageHandler(req: Request, res: Response) {
 	try {
-		const { originalname: name, buffer: file } = req.file!
+		const { buffer: file } = req.file!
 		const ext = req.file?.mimetype.split('/')[1] || ''
 
 		const result = await imageUploader(
