@@ -2,6 +2,7 @@ import express from 'express'
 import {
 	addBlogHandler,
 	deleteBlogController,
+	editorIframeHeightHandler,
 	getBlogByIdHandler,
 	getBlogBySlugHandler,
 	getBookMarkOrPreviouslyReadHandler,
@@ -14,10 +15,16 @@ import {
 	uploadEditorImageFileHandler,
 	uploadEditorImageUrlHandler
 } from '../controllers/blog.controller'
-import { authMiddleware } from '../middlewares/authMiddleware'
+import {
+	authMiddleware,
+	authMiddlewareWithoutError
+} from '../middlewares/authMiddleware'
 import { uploadImageMiddleware } from '../middlewares/multerUpload'
 import { validateResource } from '../middlewares/validateResource'
-import { UploadEditorImageUrlSchema } from '../schemas/blog.schema'
+import {
+	UploadEditorImageUrlSchema,
+	EditorIframeHeightSchema
+} from '../schemas/blog.schema'
 import {
 	AddBlogSchema,
 	DeleteBlogSchema,
@@ -113,6 +120,12 @@ router.post(
 	'/api/blog/editor/imageUrl',
 	[authMiddleware, validateResource(UploadEditorImageUrlSchema)],
 	uploadEditorImageUrlHandler
+)
+
+router.get(
+	'/api/blog/editor/iframeHeight',
+	[authMiddlewareWithoutError, validateResource(EditorIframeHeightSchema)],
+	editorIframeHeightHandler
 )
 
 export default router

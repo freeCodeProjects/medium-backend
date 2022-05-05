@@ -30,8 +30,16 @@ const BlogSchema = new Schema<Blog>(
 		slug: { type: String, unique: true },
 		publishedTitle: { type: String, default: 'untitled story', trim: true },
 		subTitle: { type: String, default: '', trim: true },
-		content: { type: Map, default: '' },
-		publishedContent: { type: Map, default: '' },
+		content: {
+			time: { type: String },
+			blocks: [{ type: Map }],
+			version: [{ type: String }]
+		},
+		publishedContent: {
+			time: { type: String },
+			blocks: [{ type: Map }],
+			version: [{ type: String }]
+		},
 		status: { type: String, default: 'draft' },
 		tags: [{ type: String, trim: true }],
 		userId: { type: Schema.Types.ObjectId, required: true, ref: 'User' },

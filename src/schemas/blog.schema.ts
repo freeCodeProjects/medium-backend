@@ -1,4 +1,4 @@
-import { object, string, TypeOf } from 'zod'
+import { number, object, preprocess, string, TypeOf } from 'zod'
 
 export const AddBlogSchema = object({
 	body: object({
@@ -78,6 +78,14 @@ export const UploadEditorImageUrlSchema = object({
 	}).strict()
 })
 
+export const EditorIframeHeightSchema = object({
+	query: object({
+		url: string().optional(),
+		source: string().optional(),
+		width: preprocess((val) => Number(val), number()).optional()
+	})
+})
+
 export type AddBlogInput = TypeOf<typeof AddBlogSchema>['body']
 export type UpdateBlogInput = TypeOf<typeof UpdateBlogSchema>['body']
 export type UpdateBlogParams = TypeOf<typeof UpdateBlogSchema>['params']
@@ -99,3 +107,6 @@ export type DeleteBlogParams = TypeOf<typeof DeleteBlogSchema>['params']
 export type UploadEditorImageUrlInput = TypeOf<
 	typeof UploadEditorImageUrlSchema
 >['body']
+export type EditorIframeHeightQuery = TypeOf<
+	typeof EditorIframeHeightSchema
+>['query']

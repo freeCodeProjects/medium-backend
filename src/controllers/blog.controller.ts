@@ -1,4 +1,4 @@
-import e, { Request, Response } from 'express'
+import { Request, Response } from 'express'
 import { logger } from '../utils/logger'
 import {
 	GetLatestBlogInput,
@@ -20,6 +20,7 @@ import {
 	findBlog,
 	removeBlog
 } from '../services/blog.service'
+import { addIframe, findIframe } from '../services/iframe.service'
 import { Types } from 'mongoose'
 import {
 	getReadingTime,
@@ -34,7 +35,18 @@ import {
 } from '../schemas/blog.schema'
 import { imageUploader } from '../utils/fileUploader'
 import { nanoid } from 'nanoid'
+import { EditorIframeHeightQuery } from '../schemas/blog.schema'
+import { twitterIframeHeight } from '../utils/iframeHeight'
+import {
+	gyfcatIframeHeight,
+	instagramIframeHeight
+} from '../utils/iframeHeight'
 const fetch = require('node-fetch')
+import {
+	youtubeIframeHeight,
+	vimeoIframeHeight,
+	gistIframeHeight
+} from '../utils/iframeHeight'
 
 export async function addBlogHandler(
 	req: Request<{}, {}, AddBlogInput>,
@@ -70,7 +82,7 @@ export async function getBlogByIdHandler(
 	res: Response
 ) {
 	try {
-		const blog = await findBlog({ _id: req.params.id })
+		const blog = await findBlog({ _id: req.params.id, userId: req.user?._id })
 
 		if (!blog) {
 			return res.status(404).send({ message: 'Blog not found.' })
@@ -367,5 +379,38 @@ export async function uploadEditorImageUrlHandler(
 	} catch (e: any) {
 		logger.error(`uploadEditorImageUrlHandler ${JSON.stringify(e)}`)
 		return res.status(500).send(e)
+	}
+}
+
+export async function editorIframeHeightHandler(
+	req: Request<{}, {}, {}, EditorIframeHeightQuery>,
+	res: Response
+) {
+	try {
+		const { url, source, width } = req.query
+		console.log(source, url, width)
+
+		if (width && source === 'youtube') {
+			const height = youtubeIframeHeight(width)
+			return res.status(200).send({ height })
+		} else if (width && source === 'vimeo') {
+			const height = vimeoIframeHeight(width)
+			return res.status(200).send({ height })
+		} else if (width && source === 'gfycat') {
+			const height = await gyfcatIframeHeight(width)
+			return res.status(200).send({ height })
+		} else if (url && source === 'gist') {
+			const height = await gistIframeHeight(url, req.user)
+			return res.status(200).send({ height })
+		} else if (url && source === 'instagram') {
+			const height = await instagramIframeHeight(url, width!, req.user)
+			return res.status(200).send({ height })
+		} else if (url && source === 'twitter') {
+			const height = await twitterIframeHeight(url, width!, req.user)
+			return res.status(200).send({ height })
+		}
+	} catch (e: any) {
+		logger.error(`editorIframeHeightHandler ${e.message}`)
+		return res.status(500).send({ message: e.message })
 	}
 }
