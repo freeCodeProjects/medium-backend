@@ -11,17 +11,6 @@ export const calculateHeightHelper = (
 	return Math.round(slope * width + yIntersection)
 }
 
-export const youtubeIframeHeight = (width: number) => {
-	if (width >= 650) {
-		return 366
-	}
-
-	const [x1, y1, x2, y2] = [428, 240, 650, 366]
-	const m = (y2 - y1) / (x2 - x1)
-	const newHeight = m * (width - x1) + y1
-	return Math.round(newHeight)
-}
-
 export const launchBrowser = async () => {
 	const browser = await puppeteer.launch({
 		headless: true
@@ -33,28 +22,6 @@ export const launchBrowser = async () => {
 	// })
 
 	return browser
-}
-
-export const vimeoIframeHeight = (width: number) => {
-	if (width >= 650) {
-		return 366
-	}
-
-	const [x1, y1, x2, y2] = [384, 216, 650, 366]
-	const m = (y2 - y1) / (x2 - x1)
-	const newHeight = m * (width - x1) + y1
-	return Math.round(newHeight)
-}
-
-export const gyfcatIframeHeight = (width: number) => {
-	if (width >= 650) {
-		return 436
-	}
-
-	const [x1, y1, x2, y2] = [360, 326, 650, 436]
-	const m = (y2 - y1) / (x2 - x1)
-	const newHeight = m * (width - x1) + y1
-	return Math.round(newHeight)
 }
 
 export const gistIframeHeight = async (url: string, user: User | undefined) => {
@@ -233,7 +200,6 @@ const twitterIframeHeightHelper = async (
 	await page.waitForTimeout(5000)
 	const elem = await page.$('body')
 	const boundingBox = await elem?.boundingBox()
-	console.log(boundingBox)
 
 	await page.close()
 	return boundingBox?.height

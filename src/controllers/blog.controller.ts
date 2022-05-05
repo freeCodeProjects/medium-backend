@@ -20,7 +20,6 @@ import {
 	findBlog,
 	removeBlog
 } from '../services/blog.service'
-import { addIframe, findIframe } from '../services/iframe.service'
 import { Types } from 'mongoose'
 import {
 	getReadingTime,
@@ -36,15 +35,10 @@ import {
 import { imageUploader } from '../utils/fileUploader'
 import { nanoid } from 'nanoid'
 import { EditorIframeHeightQuery } from '../schemas/blog.schema'
-import { twitterIframeHeight } from '../utils/iframeHeight'
-import {
-	gyfcatIframeHeight,
-	instagramIframeHeight
-} from '../utils/iframeHeight'
 const fetch = require('node-fetch')
 import {
-	youtubeIframeHeight,
-	vimeoIframeHeight,
+	twitterIframeHeight,
+	instagramIframeHeight,
 	gistIframeHeight
 } from '../utils/iframeHeight'
 
@@ -390,16 +384,7 @@ export async function editorIframeHeightHandler(
 		const { url, source, width } = req.query
 		console.log(source, url, width)
 
-		if (width && source === 'youtube') {
-			const height = youtubeIframeHeight(width)
-			return res.status(200).send({ height })
-		} else if (width && source === 'vimeo') {
-			const height = vimeoIframeHeight(width)
-			return res.status(200).send({ height })
-		} else if (width && source === 'gfycat') {
-			const height = await gyfcatIframeHeight(width)
-			return res.status(200).send({ height })
-		} else if (url && source === 'gist') {
+		if (url && source === 'gist') {
 			const height = await gistIframeHeight(url, req.user)
 			return res.status(200).send({ height })
 		} else if (url && source === 'instagram') {
