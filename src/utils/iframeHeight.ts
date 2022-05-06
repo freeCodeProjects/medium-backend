@@ -35,15 +35,6 @@ export const gistIframeHeight = async (url: string, user: User | undefined) => {
 		throw new Error('Access not allowed')
 	}
 
-	const browser = await launchBrowser()
-	const page = await browser.newPage()
-
-	await page.setViewport({
-		width: 650,
-		height: 960,
-		deviceScaleFactor: 1
-	})
-
 	const content = String.raw`<!DOCTYPE html>
     <html>
       <head>
@@ -62,30 +53,43 @@ export const gistIframeHeight = async (url: string, user: User | undefined) => {
 				<script src="${url}"></script>
 			</body>
     </html>`
+	let contentHeight: number
 
-	await page.goto(`https://iframe-placeholder.netlify.app`)
-	await page.setContent(content)
+	const browser = await launchBrowser()
+	try {
+		const page = await browser.newPage()
 
-	await page.waitForTimeout(1000)
-	const elem = await page.$('.gist')
-	const boundingBox = await elem?.boundingBox()
-	await page.close()
+		await page.setViewport({
+			width: 650,
+			height: 960,
+			deviceScaleFactor: 1
+		})
 
-	let contentHeight = boundingBox?.height!
+		await page.goto(`https://iframe-placeholder.netlify.app`)
+		await page.setContent(content)
 
-	if (contentHeight) {
+		await page.waitForTimeout(1000)
+		const elem = await page.$('.gist')
+		const boundingBox = await elem?.boundingBox()
+		await page.close()
+
+		contentHeight = boundingBox?.height!
+
 		//extra 24px to remove scrollbar
 		contentHeight += 24
+
+		await addIframe({
+			url,
+			source: 'gist',
+			height: contentHeight,
+			userId: user?._id
+		})
+	} catch (error: any) {
+		throw new Error(`Failed to calculate Gist iframe height, ${error.message}`)
+	} finally {
+		await browser.close()
 	}
 
-	await addIframe({
-		url,
-		source: 'gist',
-		height: contentHeight,
-		userId: user?._id
-	})
-
-	await browser.close()
 	return contentHeight
 }
 
@@ -108,8 +112,9 @@ const instagramIframeHeightHelper = async (
 	await page.waitForTimeout(1000)
 	const elem = await page.$('iframe')
 	const boundingBox = await elem?.boundingBox()
+	console.log(boundingBox)
 
-	await page.close()
+	// await page.close()
 	return boundingBox?.height
 }
 
@@ -118,6 +123,8 @@ export const instagramIframeHeight = async (
 	width: number,
 	user: User | undefined
 ) => {
+	width = Math.min(width, 650)
+
 	//check if Iframe data already exists
 	const iframe = await findIframe({ url })
 	if (iframe) {
@@ -128,7 +135,6 @@ export const instagramIframeHeight = async (
 		throw new Error('Access not allowed')
 	}
 
-	const browser = await launchBrowser()
 	const content = String.raw`
 	<!DOCTYPE html>
 	<html>
@@ -156,30 +162,108 @@ export const instagramIframeHeight = async (
 	</html>
 	`
 
-	const heights = await Promise.all([
-		instagramIframeHeightHelper(browser, content, 360),
-		instagramIframeHeightHelper(browser, content)
-	]).catch((error) => {
-		throw new Error(`Error : ${error}`)
-	})
+	let contentHeight: number
+	const browser = await launchBrowser()
 
-	const [x1, y1, x2, y2] = [360, heights[0]!, 650, heights[1]!]
+	try {
+		const heights = await Promise.all([
+			instagramIframeHeightHelper(browser, content, 360),
+			instagramIframeHeightHelper(browser, content)
+		])
 
-	const slope = (y2 - y1) / (x2 - x1)
-	//using formulla y = m(x - x1) + y1 here x = 0
-	const yIntersection = slope * (0 - x1) + y1
+		const [x1, y1, x2, y2] = [360, heights[0]!, 650, heights[1]!]
 
-	await addIframe({
-		url,
-		source: 'instagram',
-		slope,
-		yIntersection,
-		userId: user?._id
-	})
+		const slope = (y2 - y1) / (x2 - x1)
+		//using formulla y = m(x - x1) + y1 here x = 0
+		const yIntersection = slope * (0 - x1) + y1
 
-	await browser.close()
+		if (slope <= 0) {
+			throw new Error('Wrong calculation.')
+		}
 
-	return calculateHeightHelper(slope, yIntersection, width)
+		await addIframe({
+			url,
+			source: 'instagram',
+			slope,
+			yIntersection,
+			userId: user?._id
+		})
+
+		contentHeight = calculateHeightHelper(slope, yIntersection, width)
+	} catch (error: any) {
+		throw new Error(
+			`Failed to calculate Instagram iframe height, ${error.message}`
+		)
+	} finally {
+		await browser.close()
+	}
+
+	return contentHeight
+}
+
+export const twitterIframeHeight = async (
+	url: string,
+	width: number,
+	user: User | undefined
+) => {
+	//max-width allowed is 548px
+	width = Math.min(width, 564)
+
+	//min-width allowed is 320px
+	width = Math.max(width, 336)
+
+	//check if Iframe data already exists
+	const iframe = await findIframe({ url })
+	if (iframe) {
+		//extra 16px to compensate for margin
+		return calculateHeightHelper(iframe.slope, iframe.yIntersection, width) + 16
+	}
+
+	if (!user) {
+		throw new Error('Access not allowed')
+	}
+
+	let contentHeight: number
+	const browser = await launchBrowser()
+
+	try {
+		const heights = await Promise.all([
+			twitterIframeHeightHelper(browser, url, 336),
+			twitterIframeHeightHelper(browser, url, 564)
+		]).catch((error) => {
+			throw new Error(`Error : ${error}`)
+		})
+
+		await browser.close()
+
+		const [x1, y1, x2, y2] = [336, heights[0]!, 564, heights[1]!]
+
+		const slope = (y2 - y1) / (x2 - x1)
+		//using formulla y = m(x - x1) + y1 here x = 0
+		const yIntersection = slope * (0 - x1) + y1
+
+		if (slope <= 0) {
+			throw new Error('Wrong calculation.')
+		}
+
+		await addIframe({
+			url,
+			source: 'twitter',
+			slope,
+			yIntersection,
+			userId: user?._id
+		})
+
+		//extra 16px to compensate for margin
+		contentHeight = calculateHeightHelper(slope, yIntersection, width) + 16
+	} catch (error: any) {
+		throw new Error(
+			`Failed to calculate Twitter iframe height, ${error.message}`
+		)
+	} finally {
+		await browser.close()
+	}
+	return contentHeight
 }
 
 const twitterIframeHeightHelper = async (
@@ -205,53 +289,87 @@ const twitterIframeHeightHelper = async (
 	return boundingBox?.height
 }
 
-export const twitterIframeHeight = async (
+export const pinterestIframeHeight = async (
 	url: string,
 	width: number,
 	user: User | undefined
 ) => {
 	//max-width allowed is 548px
-	width = Math.min(width, 564)
+	width = Math.min(width, 600)
 
 	//min-width allowed is 320px
-	width = Math.max(width, 336)
+	width = Math.max(width, 236)
 
 	//check if Iframe data already exists
 	const iframe = await findIframe({ url })
 	if (iframe) {
 		//extra 16px to compensate for margin
-		return calculateHeightHelper(iframe.slope, iframe.yIntersection, width) + 16
+		return calculateHeightHelper(iframe.slope, iframe.yIntersection, width)
 	}
 
 	if (!user) {
 		throw new Error('Access not allowed')
 	}
 
+	let contentHeight: number
 	const browser = await launchBrowser()
 
-	const heights = await Promise.all([
-		twitterIframeHeightHelper(browser, url, 336),
-		twitterIframeHeightHelper(browser, url, 564)
-	]).catch((error) => {
-		throw new Error(`Error : ${error}`)
+	try {
+		const heights = await Promise.all([
+			pinterestIframeHeightHelper(browser, url, 345),
+			pinterestIframeHeightHelper(browser, url, 600)
+		]).catch((error) => {
+			throw new Error(`Error : ${error}`)
+		})
+
+		const [x1, y1, x2, y2] = [345, heights[0]!, 600, heights[1]!]
+
+		const slope = (y2 - y1) / (x2 - x1)
+		//using formulla y = m(x - x1) + y1 here x = 0
+		const yIntersection = slope * (0 - x1) + y1
+
+		if (slope <= 0) {
+			throw new Error('Failed to calculate the height.')
+		}
+
+		await addIframe({
+			url,
+			source: 'pinterest',
+			slope,
+			yIntersection,
+			userId: user?._id
+		})
+
+		contentHeight = calculateHeightHelper(slope, yIntersection, width)
+	} catch (error: any) {
+		throw new Error(
+			`Failed to calculate Pinterest iframe height, ${error.message}`
+		)
+	} finally {
+		await browser.close()
+	}
+	return contentHeight
+}
+
+const pinterestIframeHeightHelper = async (
+	browser: puppeteer.Browser,
+	url: string,
+	viewPortWidth: number = 650
+) => {
+	const page = await browser.newPage()
+	await page.setViewport({
+		width: viewPortWidth,
+		height: 960,
+		deviceScaleFactor: 1
 	})
+	await page.goto(url)
+	await page.addStyleTag({ content: 'body{overflow: hidden}' })
 
-	const [x1, y1, x2, y2] = [336, heights[0]!, 564, heights[1]!]
+	// await page.waitForSelector('iframe')
+	await page.waitForTimeout(1000)
+	const elem = await page.$('body>span')
+	const boundingBox = await elem?.boundingBox()
 
-	const slope = (y2 - y1) / (x2 - x1)
-	//using formulla y = m(x - x1) + y1 here x = 0
-	const yIntersection = slope * (0 - x1) + y1
-
-	await addIframe({
-		url,
-		source: 'twitter',
-		slope,
-		yIntersection,
-		userId: user?._id
-	})
-
-	await browser.close()
-
-	//extra 16px to compensate for margin
-	return calculateHeightHelper(slope, yIntersection, width) + 16
+	await page.close()
+	return boundingBox?.height
 }

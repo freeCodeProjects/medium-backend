@@ -39,7 +39,8 @@ const fetch = require('node-fetch')
 import {
 	twitterIframeHeight,
 	instagramIframeHeight,
-	gistIframeHeight
+	gistIframeHeight,
+	pinterestIframeHeight
 } from '../utils/iframeHeight'
 
 export async function addBlogHandler(
@@ -382,7 +383,7 @@ export async function editorIframeHeightHandler(
 ) {
 	try {
 		const { url, source, width } = req.query
-		console.log(source, url, width)
+		logger.info(`${source}, ${url}, ${width}`)
 
 		if (url && source === 'gist') {
 			const height = await gistIframeHeight(url, req.user)
@@ -392,6 +393,9 @@ export async function editorIframeHeightHandler(
 			return res.status(200).send({ height })
 		} else if (url && source === 'twitter') {
 			const height = await twitterIframeHeight(url, width!, req.user)
+			return res.status(200).send({ height })
+		} else if (url && source === 'pinterest') {
+			const height = await pinterestIframeHeight(url, width!, req.user)
 			return res.status(200).send({ height })
 		}
 	} catch (e: any) {
