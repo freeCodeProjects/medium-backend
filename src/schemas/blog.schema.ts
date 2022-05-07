@@ -86,6 +86,12 @@ export const EditorIframeHeightSchema = object({
 	})
 })
 
+export const EditorLinkSchema = object({
+	query: object({
+		url: string()
+	})
+})
+
 export type AddBlogInput = TypeOf<typeof AddBlogSchema>['body']
 export type UpdateBlogInput = TypeOf<typeof UpdateBlogSchema>['body']
 export type UpdateBlogParams = TypeOf<typeof UpdateBlogSchema>['params']
@@ -110,3 +116,4 @@ export type UploadEditorImageUrlInput = TypeOf<
 export type EditorIframeHeightQuery = TypeOf<
 	typeof EditorIframeHeightSchema
 >['query']
+export type EditorLinkQuery = TypeOf<typeof EditorLinkSchema>['query']

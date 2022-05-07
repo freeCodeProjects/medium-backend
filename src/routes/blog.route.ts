@@ -3,6 +3,7 @@ import {
 	addBlogHandler,
 	deleteBlogController,
 	editorIframeHeightHandler,
+	editorLinkHandler,
 	getBlogByIdHandler,
 	getBlogBySlugHandler,
 	getBookMarkOrPreviouslyReadHandler,
@@ -21,6 +22,7 @@ import {
 } from '../middlewares/authMiddleware'
 import { uploadImageMiddleware } from '../middlewares/multerUpload'
 import { validateResource } from '../middlewares/validateResource'
+import { EditorLinkSchema } from '../schemas/blog.schema'
 import {
 	UploadEditorImageUrlSchema,
 	EditorIframeHeightSchema
@@ -126,6 +128,12 @@ router.get(
 	'/api/blog/editor/iframeHeight',
 	[authMiddlewareWithoutError, validateResource(EditorIframeHeightSchema)],
 	editorIframeHeightHandler
+)
+
+router.get(
+	'/api/blog/editor/fetchUrl',
+	validateResource(EditorLinkSchema),
+	editorLinkHandler
 )
 
 export default router

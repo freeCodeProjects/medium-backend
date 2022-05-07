@@ -34,7 +34,10 @@ import {
 } from '../schemas/blog.schema'
 import { imageUploader } from '../utils/fileUploader'
 import { nanoid } from 'nanoid'
-import { EditorIframeHeightQuery } from '../schemas/blog.schema'
+import {
+	EditorIframeHeightQuery,
+	EditorLinkQuery
+} from '../schemas/blog.schema'
 const fetch = require('node-fetch')
 import {
 	twitterIframeHeight,
@@ -42,6 +45,7 @@ import {
 	gistIframeHeight,
 	pinterestIframeHeight
 } from '../utils/iframeHeight'
+import { getLinkPreview } from 'link-preview-js'
 
 export async function addBlogHandler(
 	req: Request<{}, {}, AddBlogInput>,
@@ -400,6 +404,37 @@ export async function editorIframeHeightHandler(
 		}
 	} catch (e: any) {
 		logger.error(`editorIframeHeightHandler ${e.message}`)
+		return res.status(500).send({ message: e.message })
+	}
+}
+
+export async function editorLinkHandler(
+	req: Request<{}, {}, {}, EditorLinkQuery>,
+	res: Response
+) {
+	try {
+		const { url: linkUrl } = req.query
+		const linkData = await getLinkPreview(linkUrl)
+
+		if ('title' in linkData) {
+			const { url, title, siteName, description, images, favicons } = linkData
+			return res.status(200).send({
+				success: 1,
+				link: url,
+				meta: {
+					title,
+					site_name: siteName,
+					description,
+					image: {
+						url: images[0] || favicons[0]
+					}
+				}
+			})
+		} else {
+			throw new Error('Failed to fetch link data.')
+		}
+	} catch (e: any) {
+		logger.error(`editorLinkHandler ${e.message}`)
 		return res.status(500).send({ message: e.message })
 	}
 }
