@@ -37,7 +37,7 @@ export async function addFollowerController(
 		return res.status(200).send({ follower })
 	} catch (e: any) {
 		logger.error(`addFollowerController ${JSON.stringify(e)}`)
-		return res.status(500).send(e)
+		return res.status(500).send({ message: e.message })
 	}
 }
 
@@ -60,7 +60,7 @@ export async function removeFollowerController(
 		return res.status(200).send('Unfollow successful.')
 	} catch (e: any) {
 		logger.error(`removeFollowerController ${JSON.stringify(e)}`)
-		return res.status(500).send(e)
+		return res.status(500).send({ message: e.message })
 	}
 }
 
@@ -98,6 +98,6 @@ export async function getFollowingOrFollowerHandler(
 		return res.status(200).send({ result })
 	} catch (e: any) {
 		logger.error(`getFollowingOrFollowerHandler ${JSON.stringify(e)}`)
-		return res.status(500).send(e)
+		return res.status(500).send({ message: e.message })
 	}
 }

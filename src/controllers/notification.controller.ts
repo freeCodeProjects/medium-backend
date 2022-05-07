@@ -32,6 +32,6 @@ export async function getNotificationController(
 		res.status(200).send(notifications)
 	} catch (e: any) {
 		logger.error(`getNotificationController ${JSON.stringify(e)}`)
-		return res.status(500).send(e)
+		return res.status(500).send({ message: e.message })
 	}
 }

@@ -69,7 +69,7 @@ export async function getTopCommentController(
 		return res.status(200).send({ comments, haveMore })
 	} catch (e: any) {
 		logger.error(`getTopCommentController ${JSON.stringify(e)}`)
-		return res.status(500).send(e)
+		return res.status(500).send({ message: e.message })
 	}
 }
 
@@ -120,7 +120,7 @@ export async function getLatestCommentController(
 		return res.status(200).send({ comments, haveMore })
 	} catch (e: any) {
 		logger.error(`getLatestCommentController ${JSON.stringify(e)}`)
-		return res.status(500).send(e)
+		return res.status(500).send({ message: e.message })
 	}
 }
 
@@ -141,7 +141,7 @@ export async function addCommentController(
 		res.status(200).send({ comment })
 	} catch (e: any) {
 		logger.error(`addCommentController ${JSON.stringify(e)}`)
-		return res.status(500).send(e)
+		return res.status(500).send({ message: e.message })
 	}
 }
 
@@ -157,7 +157,7 @@ export async function updateCommentController(
 		res.status(200).send({ comment })
 	} catch (e: any) {
 		logger.error(`updateCommentController ${JSON.stringify(e)}`)
-		return res.status(500).send(e)
+		return res.status(500).send({ message: e.message })
 	}
 }
 
@@ -174,6 +174,6 @@ export async function deleteCommentController(
 		res.status(200).send({ result })
 	} catch (e: any) {
 		logger.error(`deleteCommentController ${JSON.stringify(e)}`)
-		return res.status(500).send(e)
+		return res.status(500).send({ message: e.message })
 	}
 }

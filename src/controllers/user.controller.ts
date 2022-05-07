@@ -57,7 +57,7 @@ export async function createUserHandler(
 			return res.status(409).send({ message: 'Account already exists' })
 		}
 		logger.error(`createUserHandler ${JSON.stringify(e)}`)
-		return res.status(500).send(e)
+		return res.status(500).send({ message: e.message })
 	}
 }
 
@@ -104,7 +104,7 @@ export async function verifyUserHandler(
 		}
 	} catch (e: any) {
 		logger.error(`verifyUserHandler ${JSON.stringify(e)}`)
-		return res.status(500).send(e)
+		return res.status(500).send({ message: e.message })
 	}
 }
 
@@ -137,7 +137,7 @@ export async function loginUserHandler(
 		}
 	} catch (e: any) {
 		logger.error(`loginUserHandler ${JSON.stringify(e)}`)
-		return res.status(500).send(e)
+		return res.status(500).send({ message: e.message })
 	}
 }
 
@@ -167,7 +167,7 @@ export async function getLoginUserHandler(req: Request, res: Response) {
 		})
 	} catch (e: any) {
 		logger.error(`logoutUserHandler ${JSON.stringify(e)}`)
-		return res.status(500).send(e)
+		return res.status(500).send({ message: e.message })
 	}
 }
 
@@ -183,7 +183,7 @@ export async function getUserByUserNameHandler(
 		return res.status(200).send({ user })
 	} catch (e: any) {
 		logger.error(`getUserByUserNameHandler ${JSON.stringify(e)}`)
-		return res.status(500).send(e)
+		return res.status(500).send({ message: e.message })
 	}
 }
 
@@ -197,7 +197,7 @@ export async function logoutUserHandler(req: Request, res: Response) {
 		return res.status(200).send({ message: 'Logout successful.' })
 	} catch (e: any) {
 		logger.error(`logoutUserHandler ${JSON.stringify(e)}`)
-		return res.status(500).send(e)
+		return res.status(500).send({ message: e.message })
 	}
 }
 
@@ -234,7 +234,7 @@ export async function resetPasswordMailHandler(
 		}
 	} catch (e: any) {
 		logger.error(`resetPasswordMailHandler ${JSON.stringify(e)}`)
-		return res.status(500).send(e)
+		return res.status(500).send({ message: e.message })
 	}
 }
 
@@ -262,7 +262,7 @@ export async function resetPasswordHandler(
 		}
 	} catch (e: any) {
 		logger.error(`resetPasswordHandler ${JSON.stringify(e)}`)
-		return res.status(500).send(e)
+		return res.status(500).send({ message: e.message })
 	}
 }
 
@@ -283,7 +283,7 @@ export async function updateNameHandler(
 		return res.status(200).send({ user })
 	} catch (e: any) {
 		logger.error(`updateNameHandler ${JSON.stringify(e)}`)
-		return res.status(500).send(e)
+		return res.status(500).send({ message: e.message })
 	}
 }
 
@@ -303,7 +303,7 @@ export async function updateBioHandler(
 		return res.status(200).send({ user })
 	} catch (e: any) {
 		logger.error(`updateBioHandler ${JSON.stringify(e)}`)
-		return res.status(500).send(e)
+		return res.status(500).send({ message: e.message })
 	}
 }
 
@@ -330,7 +330,7 @@ export async function uploadProfileImageHandler(req: Request, res: Response) {
 		return res.status(200).send({ user })
 	} catch (e: any) {
 		logger.error(`uploadProfileImageHandler ${JSON.stringify(e)}`)
-		return res.status(500).send(e)
+		return res.status(500).send({ message: e.message })
 	}
 }
 
@@ -345,7 +345,7 @@ export async function isUserNameUniqueHandler(
 		return res.status(200).send({ isUnique: result ? false : true })
 	} catch (e: any) {
 		logger.error(`IsUserNameUniqueHandler ${JSON.stringify(e)}`)
-		return res.status(500).send(e)
+		return res.status(500).send({ message: e.message })
 	}
 }
 
@@ -365,7 +365,7 @@ export async function updateUserNameHandler(
 		return res.status(200).send({ user })
 	} catch (e: any) {
 		logger.error(`updateNameHandler ${JSON.stringify(e)}`)
-		return res.status(500).send(e)
+		return res.status(500).send({ message: e.message })
 	}
 }
 
@@ -383,7 +383,7 @@ export async function addToBookmarkHandler(
 		return res.status(200).send(user)
 	} catch (e: any) {
 		logger.error(`addToBookmarkHandler ${JSON.stringify(e)}`)
-		return res.status(500).send(e)
+		return res.status(500).send({ message: e.message })
 	}
 }
 
@@ -401,7 +401,7 @@ export async function removeFromBookmarkHandler(
 		return res.status(200).send(user)
 	} catch (e: any) {
 		logger.error(`removeFromBookmarkHandler ${JSON.stringify(e)}`)
-		return res.status(500).send(e)
+		return res.status(500).send({ message: e.message })
 	}
 }
 
@@ -425,7 +425,7 @@ export async function previouslyReadHandler(
 		return res.status(200).send('Added to previously read.')
 	} catch (e: any) {
 		logger.error(`previouslyReadHandler ${JSON.stringify(e)}`)
-		return res.status(500).send(e)
+		return res.status(500).send({ message: e.message })
 	}
 }
 
@@ -438,6 +438,6 @@ export async function deleteUserController(req: Request, res: Response) {
 		res.status(200).send({ result })
 	} catch (e: any) {
 		logger.error(`deleteUserController ${JSON.stringify(e)}`)
-		return res.status(500).send(e)
+		return res.status(500).send({ message: e.message })
 	}
 }

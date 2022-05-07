@@ -56,7 +56,7 @@ export async function addBlogHandler(
 		return res.status(200).send({ blog })
 	} catch (e: any) {
 		logger.error(`addBlogHandler ${JSON.stringify(e)}`)
-		return res.status(500).send(e)
+		return res.status(500).send({ message: e.message })
 	}
 }
 
@@ -72,7 +72,7 @@ export async function updateBlogHandler(
 		return res.status(200).send({ blog })
 	} catch (e: any) {
 		logger.error(`updateBlogHandler ${JSON.stringify(e)}`)
-		return res.status(500).send(e)
+		return res.status(500).send({ message: e.message })
 	}
 }
 
@@ -90,7 +90,7 @@ export async function getBlogByIdHandler(
 		return res.status(200).send({ blog })
 	} catch (e: any) {
 		logger.error(`getBlogByIdHandler ${JSON.stringify(e)}`)
-		return res.status(500).send(e)
+		return res.status(500).send({ message: e.message })
 	}
 }
 
@@ -125,7 +125,7 @@ export async function publishBlogHandler(
 		return res.status(200).send(blog)
 	} catch (e: any) {
 		logger.error(`PublishBlogHandler ${JSON.stringify(e)}`)
-		return res.status(500).send(e)
+		return res.status(500).send({ message: e.message })
 	}
 }
 
@@ -138,7 +138,7 @@ export async function getBlogBySlugHandler(
 		return res.status(200).send(blog)
 	} catch (e: any) {
 		logger.error(`getBlogBySlugHandler ${JSON.stringify(e)}`)
-		return res.status(500).send(e)
+		return res.status(500).send({ message: e.message })
 	}
 }
 
@@ -170,7 +170,7 @@ export async function getLatestBlogHandler(
 		return res.status(200).send(blogs)
 	} catch (e: any) {
 		logger.error(`GetLatestBlogHandler ${JSON.stringify(e)}`)
-		return res.status(500).send(e)
+		return res.status(500).send({ message: e.message })
 	}
 }
 
@@ -190,7 +190,7 @@ export async function getTrendingBlogHandler(req: Request, res: Response) {
 		return res.status(200).send(blogs)
 	} catch (e: any) {
 		logger.error(`GetTrendingBlogHandler ${JSON.stringify(e)}`)
-		return res.status(500).send(e)
+		return res.status(500).send({ message: e.message })
 	}
 }
 
@@ -241,7 +241,7 @@ export async function getBookMarkOrPreviouslyReadHandler(
 		return res.status(200).send(docs)
 	} catch (e: any) {
 		logger.error(`get${type}Handler ${JSON.stringify(e)}`)
-		return res.status(500).send(e)
+		return res.status(500).send({ message: e.message })
 	}
 }
 
@@ -267,7 +267,7 @@ export async function getUserDraftBlogHandler(
 		return res.status(200).send(blogs)
 	} catch (e: any) {
 		logger.error(`getUserDraftBlogHandler ${JSON.stringify(e)}`)
-		return res.status(500).send(e)
+		return res.status(500).send({ message: e.message })
 	}
 }
 
@@ -293,7 +293,7 @@ export async function getUserPublishedBlogHandler(
 		return res.status(200).send(blogs)
 	} catch (e: any) {
 		logger.error(`getUserPublishedBlogHandler ${JSON.stringify(e)}`)
-		return res.status(500).send(e)
+		return res.status(500).send({ message: e.message })
 	}
 }
 
@@ -310,7 +310,7 @@ export async function deleteBlogController(
 		res.status(200).send({ result })
 	} catch (e: any) {
 		logger.error(`deleteBlogController ${JSON.stringify(e)}`)
-		return res.status(500).send(e)
+		return res.status(500).send({ message: e.message })
 	}
 }
 
@@ -330,7 +330,7 @@ export async function uploadEditorImageFileHandler(
 		})
 	} catch (e: any) {
 		logger.error(`uploadEditorImageFileHandler ${JSON.stringify(e)}`)
-		return res.status(500).send(e)
+		return res.status(500).send({ message: e.message })
 	}
 }
 
@@ -377,7 +377,7 @@ export async function uploadEditorImageUrlHandler(
 		})
 	} catch (e: any) {
 		logger.error(`uploadEditorImageUrlHandler ${JSON.stringify(e)}`)
-		return res.status(500).send(e)
+		return res.status(500).send({ message: e.message })
 	}
 }
 

@@ -19,7 +19,7 @@ export async function addClapHandler(
 		return res.status(200).send({ clap })
 	} catch (e: any) {
 		logger.error(`addClapHandler ${JSON.stringify(e)}`)
-		return res.status(500).send(e)
+		return res.status(500).send({message: e.message})
 	}
 }
 
@@ -35,6 +35,6 @@ export async function getClapHandler(
 		return res.status(200).send({ clap })
 	} catch (e: any) {
 		logger.error(`getClapHandler ${JSON.stringify(e)}`)
-		return res.status(500).send(e)
+		return res.status(500).send({message: e.message})
 	}
 }
