@@ -312,6 +312,7 @@ export async function uploadProfileImageHandler(req: Request, res: Response) {
 		const { buffer: file } = req.file!
 		const ext = req.file?.mimetype.split('/')[1] || ''
 
+		//replace existing image file
 		const result = await imageUploader(
 			file,
 			req.user?._id.toHexString()! + '.' + ext,
@@ -319,10 +320,13 @@ export async function uploadProfileImageHandler(req: Request, res: Response) {
 			false
 		)
 
+		//since the image url is same adding random id will force browser to refetch image otherwise image will not update on browser
+		const newImageUrl = `${result.url}?fileId=${nanoid()}`
+
 		//update the user photo with result url
 		const user = await findAndUpdateUser(
 			{ _id: req.user?._id },
-			{ photo: result.url },
+			{ photo: newImageUrl },
 			{
 				projection: LoggedInUserProjection
 			}

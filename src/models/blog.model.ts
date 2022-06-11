@@ -1,10 +1,5 @@
 import { model, Schema, Types } from 'mongoose'
-
-export type EditorData = {
-	time: string
-	blocks: Array<any>
-	version: string
-}
+import { EditorData } from '../schemas/blog.schema'
 
 export interface Blog {
 	_id: Types.ObjectId

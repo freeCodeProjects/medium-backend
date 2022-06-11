@@ -1,16 +1,22 @@
 import { number, object, preprocess, string, TypeOf } from 'zod'
 
+export const EditorDataSchema = object({
+	time: number(),
+	blocks: object({}).array(),
+	version: string()
+})
+
 export const AddBlogSchema = object({
 	body: object({
 		title: string().optional(),
-		content: object({}).optional()
+		content: EditorDataSchema.optional()
 	}).strict()
 })
 
 export const UpdateBlogSchema = object({
 	body: object({
 		title: string().optional(),
-		content: object({}).optional()
+		content: EditorDataSchema.optional()
 	}).strict(),
 	params: object({
 		id: string().optional()
@@ -117,3 +123,4 @@ export type EditorIframeHeightQuery = TypeOf<
 	typeof EditorIframeHeightSchema
 >['query']
 export type EditorLinkQuery = TypeOf<typeof EditorLinkSchema>['query']
+export type EditorData = TypeOf<typeof EditorDataSchema>

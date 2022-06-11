@@ -116,9 +116,7 @@ export async function publishBlogHandler(
 					publishedAt: {
 						$ifNull: ['$publishedAt', new Date()]
 					},
-					slug: {
-						$ifNull: [generateSlug(req.body.title), '$slug']
-					}
+					slug: generateSlug(req.body.title || 'untitled story')
 				}
 			}
 		])
