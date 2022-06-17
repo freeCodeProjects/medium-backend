@@ -116,7 +116,8 @@ export async function publishBlogHandler(
 					publishedAt: {
 						$ifNull: ['$publishedAt', new Date()]
 					},
-					slug: generateSlug(req.body.title || 'untitled story')
+					slug: generateSlug(req.body.title || 'untitled story'),
+					isPublished: true
 				}
 			}
 		])
@@ -175,7 +176,7 @@ export async function getLatestBlogHandler(
 export async function getTrendingBlogHandler(req: Request, res: Response) {
 	try {
 		const blogs = await findAllBlog({ status: 'published' }, BlogProjection, {
-			sort: { claps: -1, publishedAt: -1 },
+			sort: { clapsCount: -1, publishedAt: -1 },
 			limit: 6,
 			populate: {
 				path: 'user',
