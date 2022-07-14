@@ -112,9 +112,8 @@ const instagramIframeHeightHelper = async (
 	await page.waitForTimeout(1000)
 	const elem = await page.$('iframe')
 	const boundingBox = await elem?.boundingBox()
-	console.log(boundingBox)
 
-	// await page.close()
+	await page.close()
 	return boundingBox?.height
 }
 

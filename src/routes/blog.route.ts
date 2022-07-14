@@ -56,14 +56,8 @@ router.patch(
 	updateBlogHandler
 )
 
-router.get(
-	'/api/blog/:id',
-	[authMiddleware, validateResource(GetBlogByIdSchema)],
-	getBlogByIdHandler
-)
-
 router.post(
-	'/api/blog/publishBlog/:id',
+	'/api/blog/publish/:id',
 	[authMiddleware, validateResource(PublishBlogSchema)],
 	publishBlogHandler
 )
@@ -80,7 +74,7 @@ router.get(
 	getLatestBlogHandler
 )
 
-router.get('/api/blog/trending', authMiddleware, getTrendingBlogHandler)
+router.get('/api/blog/trending', getTrendingBlogHandler)
 
 router.get(
 	'/api/blog/bookmarks',
@@ -134,6 +128,12 @@ router.get(
 	'/api/blog/editor/fetchUrl',
 	validateResource(EditorLinkSchema),
 	editorLinkHandler
+)
+
+router.get(
+	'/api/blog/:id',
+	[authMiddleware, validateResource(GetBlogByIdSchema)],
+	getBlogByIdHandler
 )
 
 export default router

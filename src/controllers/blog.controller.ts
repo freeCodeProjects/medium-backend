@@ -175,7 +175,7 @@ export async function getLatestBlogHandler(
 
 export async function getTrendingBlogHandler(req: Request, res: Response) {
 	try {
-		const blogs = await findAllBlog({ status: 'published' }, BlogProjection, {
+		const blogs = await findAllBlog({ isPublished: true }, BlogProjection, {
 			sort: { clapsCount: -1, publishedAt: -1 },
 			limit: 6,
 			populate: {
@@ -339,8 +339,14 @@ export async function uploadEditorImageUrlHandler(
 ) {
 	try {
 		const url = req.body.url
-		let ext = ''
+
 		try {
+			//check if url is image type
+			const isImageUrl = url.match(/https?:\/\/\S+\.(gif|jpe?g|tiff|png)$/i)
+			if (!isImageUrl) {
+				throw new Error('Not a image Url.')
+			}
+
 			const fileImg = await fetch(url)
 				.then((r: any) => r.blob())
 				.catch(() => {
@@ -352,8 +358,6 @@ export async function uploadEditorImageUrlHandler(
 				throw new Error('File is not image.')
 			}
 
-			ext = fileImg.type.split('/')[1]
-
 			const isValidFileSize = validateFileSize(fileImg, 3)
 			if (!isValidFileSize) {
 				throw new Error('File size is more than 3 MB.')
@@ -361,6 +365,9 @@ export async function uploadEditorImageUrlHandler(
 		} catch (error: any) {
 			return res.status(400).send({ message: error.message })
 		}
+
+		//extract file extention from url
+		let ext = url.slice(url.lastIndexOf('.') + 1)
 
 		const result = await imageUploader(
 			req.body.url,

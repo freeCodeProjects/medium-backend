@@ -17,6 +17,7 @@ export interface Blog {
 	clapsCount: number
 	responsesCount: number
 	createdAt: Date
+	updatedAt: Date
 	publishedAt: Date
 	readTime: number
 	isPublished: boolean

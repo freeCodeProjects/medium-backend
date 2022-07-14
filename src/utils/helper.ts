@@ -45,8 +45,9 @@ export const generateSlug = (text: string) => {
 	)}`
 }
 
+//for some url e.g - https://miro.medium.com/max/1400/0*cI5eoFps4thgr01A.jpeg buffer type is 'text/html' so we will allow isFileImage check for both 'image/...' and 'text/html' this is not perfect but something is better than nothing. This problem exists on backend only
 export const isFileImage = (file: File | Blob) => {
-	return file && file['type'].split('/')[0] === 'image'
+	return (file && file['type'].split('/')[0] === 'image') || 'text'
 }
 
 export const validateFileSize = (file: File | Blob, sizeInMB: number) => {
