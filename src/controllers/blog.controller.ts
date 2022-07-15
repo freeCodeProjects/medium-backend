@@ -116,7 +116,9 @@ export async function publishBlogHandler(
 					publishedAt: {
 						$ifNull: ['$publishedAt', new Date()]
 					},
-					slug: generateSlug(req.body.title || 'untitled story'),
+					slug: {
+						$ifNull: ['$slug', generateSlug(req.body.title || 'untitled story')]
+					},
 					isPublished: true
 				}
 			}
@@ -133,7 +135,19 @@ export async function getBlogBySlugHandler(
 	res: Response
 ) {
 	try {
-		const blog = await findBlog({ slug: req.params.slug }, BlogProjection)
+		const blog = await findBlog({ slug: req.params.slug }, BlogProjection, {
+			populate: {
+				path: 'user',
+				options: {
+					lean: true,
+					select: UserProjection
+				}
+			}
+		})
+		if (!blog) {
+			return res.status(404).send({ message: 'Blog not found.' })
+		}
+
 		return res.status(200).send(blog)
 	} catch (e: any) {
 		logger.error(`getBlogBySlugHandler ${JSON.stringify(e)}`)

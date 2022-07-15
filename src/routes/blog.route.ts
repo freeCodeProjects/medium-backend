@@ -64,13 +64,13 @@ router.post(
 
 router.get(
 	'/api/blog/slug/:slug',
-	[authMiddleware, validateResource(GetBlogBySlugSchema)],
+	[validateResource(GetBlogBySlugSchema)],
 	getBlogBySlugHandler
 )
 
 router.get(
 	'/api/blog/latest',
-	[authMiddleware, validateResource(GetLatestBlogSchema)],
+	[validateResource(GetLatestBlogSchema)],
 	getLatestBlogHandler
 )
 
@@ -131,7 +131,7 @@ router.get(
 )
 
 router.get(
-	'/api/blog/:id',
+	'/api/blog/getById/:id',
 	[authMiddleware, validateResource(GetBlogByIdSchema)],
 	getBlogByIdHandler
 )
