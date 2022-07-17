@@ -49,7 +49,7 @@ export const GetBlogBySlugSchema = object({
 })
 
 export const GetLatestBlogSchema = object({
-	body: object({
+	query: object({
 		beforeTime: string()
 	}).strict()
 })
@@ -104,7 +104,7 @@ export type UpdateBlogParams = TypeOf<typeof UpdateBlogSchema>['params']
 export type PublishBlogInput = TypeOf<typeof PublishBlogSchema>['body']
 export type GetBlogByIdParams = TypeOf<typeof GetBlogByIdSchema>['params']
 export type PublishBlogParams = TypeOf<typeof PublishBlogSchema>['params']
-export type GetLatestBlogInput = TypeOf<typeof GetLatestBlogSchema>['body']
+export type GetLatestBlogQuery = TypeOf<typeof GetLatestBlogSchema>['query']
 export type GetBlogBySlugParams = TypeOf<typeof GetBlogBySlugSchema>['params']
 export type GetBookMarkOrPreviouslyReadInput = TypeOf<
 	typeof GetBookMarkOrPreviouslyReadSchema

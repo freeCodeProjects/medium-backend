@@ -1,7 +1,6 @@
 import { Request, Response } from 'express'
 import { logger } from '../utils/logger'
 import {
-	GetLatestBlogInput,
 	PublishBlogParams,
 	PublishBlogInput,
 	GetBookMarkOrPreviouslyReadInput,
@@ -46,6 +45,7 @@ import {
 	pinterestIframeHeight
 } from '../utils/iframeHeight'
 import { getLinkPreview } from 'link-preview-js'
+import { GetLatestBlogQuery } from '../schemas/blog.schema'
 
 export async function addBlogHandler(
 	req: Request<{}, {}, AddBlogInput>,
@@ -156,15 +156,15 @@ export async function getBlogBySlugHandler(
 }
 
 export async function getLatestBlogHandler(
-	req: Request<{}, {}, GetLatestBlogInput>,
+	req: Request<{}, {}, {}, GetLatestBlogQuery>,
 	res: Response
 ) {
 	try {
-		const publishedAtTime = req.body.beforeTime || new Date()
+		const publishedAtTime = req.query.beforeTime || new Date()
 
 		const blogs = await findAllBlog(
 			{
-				status: 'published',
+				isPublished: true,
 				publishedAt: { $lt: publishedAtTime }
 			},
 			BlogProjection,
