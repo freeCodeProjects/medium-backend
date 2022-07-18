@@ -26,7 +26,7 @@ export interface Blog {
 const BlogSchema = new Schema<Blog>(
 	{
 		title: { type: String, default: 'untitled story', trim: true },
-		slug: { type: String, unique: true, default: () => nanoid() },
+		slug: { type: String, unique: true },
 		publishedTitle: { type: String, default: 'untitled story', trim: true },
 		subTitle: { type: String, default: '', trim: true },
 		content: {
