@@ -40,9 +40,7 @@ export function getReadingTime(content: any): number {
 }
 
 export const generateSlug = (text: string) => {
-	return `${slugify(text, { remove: /[*+~.()'"!:@]/g, lower: true })}-${nanoid(
-		12
-	)}`
+	return `${slugify(text, { strict: true, lower: true })}-${nanoid(12)}`
 }
 
 //for some url e.g - https://miro.medium.com/max/1400/0*cI5eoFps4thgr01A.jpeg buffer type is 'text/html' so we will allow isFileImage check for both 'image/...' and 'text/html' this is not perfect but something is better than nothing. This problem exists on backend only
