@@ -2,6 +2,7 @@ import { Request, Response } from 'express'
 import {
 	addFollower,
 	findAllFollower,
+	findFollower,
 	removeFollower
 } from '../services/follower.service'
 import { logger } from '../utils/logger'
@@ -11,10 +12,34 @@ import {
 } from '../schemas/follower.schema'
 import { Types } from 'mongoose'
 import { UserProjection } from '../utils/projection'
+import { GetFollowerParams } from '../schemas/follower.schema'
 import {
 	GetFollowingOrFollowerParams,
 	GetFollowingOrFollowerInput
 } from '../schemas/follower.schema'
+
+export async function getFollowerController(
+	req: Request<GetFollowerParams>,
+	res: Response
+) {
+	try {
+		//id of person who is getting followed
+		const followingId = new Types.ObjectId(req.params.userId)
+		//id of person who is following
+		const followerId = new Types.ObjectId(req.user?._id)
+
+		const id = `follower:${followerId}-following:${followingId}`
+		//add the follower to collection
+		const follower = await findFollower({
+			_id: id
+		})
+
+		return res.status(200).send({ isFollowing: Boolean(follower) })
+	} catch (e: any) {
+		logger.error(`addFollowerController ${JSON.stringify(e)}`)
+		return res.status(500).send({ message: e.message })
+	}
+}
 
 export async function addFollowerController(
 	req: Request<AddFollowerParams>,
@@ -34,7 +59,7 @@ export async function addFollowerController(
 			followingId
 		})
 
-		return res.status(200).send({ follower })
+		return res.status(200).send({ isFollowing: Boolean(follower) })
 	} catch (e: any) {
 		logger.error(`addFollowerController ${JSON.stringify(e)}`)
 		return res.status(500).send({ message: e.message })

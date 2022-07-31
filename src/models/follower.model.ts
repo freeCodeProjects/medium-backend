@@ -12,7 +12,7 @@ const FollowerSchema = new Schema<Follower>(
 		followerId: { type: Schema.Types.ObjectId, ref: 'User', required: true },
 		followingId: { type: Schema.Types.ObjectId, ref: 'User', required: true }
 	},
-	{ timestamps: true, _id: true }
+	{ timestamps: true, _id: false }
 )
 
 FollowerSchema.virtual('follower', {

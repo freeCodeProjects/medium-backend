@@ -6,6 +6,7 @@ const ParamsWithUserId = object({
 	}).strict()
 })
 
+export const GetFollowerSchema = ParamsWithUserId
 export const AddFollowerSchema = ParamsWithUserId
 export const RemoveFollowerSchema = ParamsWithUserId
 
@@ -18,6 +19,7 @@ export const GetFollowingOrFollowerSchema = object({
 	}).strict()
 })
 
+export type GetFollowerParams = TypeOf<typeof GetFollowerSchema>['params']
 export type AddFollowerParams = TypeOf<typeof AddFollowerSchema>['params']
 export type RemoveFollowerParams = TypeOf<typeof RemoveFollowerSchema>['params']
 export type GetFollowingOrFollowerParams = TypeOf<
