@@ -176,7 +176,6 @@ export async function getUserByIdHandler(
 	req: Request<GetUserByIdParams>,
 	res: Response
 ) {
-	console.log(req.params.id)
 	try {
 		const user = await findUser({ _id: req.params.id }, UserProjection)
 		return res.status(200).send(user)
