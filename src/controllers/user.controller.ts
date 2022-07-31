@@ -27,7 +27,8 @@ import {
 	UpdateUserNameInput,
 	PreviouslyReadParams,
 	VerifyUserQuery,
-	IsUserNameUniqueQuery
+	IsUserNameUniqueQuery,
+	GetUserByIdParams
 } from '../schemas/user.schema'
 import { UserProjection } from '../utils/projection'
 import { Types } from 'mongoose'
@@ -171,6 +172,20 @@ export async function getLoginUserHandler(req: Request, res: Response) {
 	}
 }
 
+export async function getUserByIdHandler(
+	req: Request<GetUserByIdParams>,
+	res: Response
+) {
+	console.log(req.params.id)
+	try {
+		const user = await findUser({ _id: req.params.id }, UserProjection)
+		return res.status(200).send(user)
+	} catch (e: any) {
+		logger.error(`getUserByIdHandler ${JSON.stringify(e)}`)
+		return res.status(500).send({ message: e.message })
+	}
+}
+
 export async function getUserByUserNameHandler(
 	req: Request<GetUserByUserNameParams>,
 	res: Response
@@ -178,7 +193,7 @@ export async function getUserByUserNameHandler(
 	try {
 		const user = await findUser(
 			{ userName: req.params.userName },
-			LoggedInUserProjection
+			UserProjection
 		)
 		return res.status(200).send({ user })
 	} catch (e: any) {

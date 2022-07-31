@@ -16,7 +16,8 @@ import {
 	previouslyReadHandler,
 	deleteUserController,
 	getLoginUserHandler,
-	getUserByUserNameHandler
+	getUserByUserNameHandler,
+	getUserByIdHandler
 } from '../controllers/user.controller'
 import { authMiddleware } from '../middlewares/authMiddleware'
 import { validateResource } from '../middlewares/validateResource'
@@ -31,12 +32,19 @@ import {
 	LoginUserSchema,
 	VerifyUserSchema,
 	BookmarkBlogSchema,
-	PreviouslyReadSchema
+	PreviouslyReadSchema,
+	GetUserByUserNameSchema,
+	GetUserByIdSchema
 } from '../schemas/user.schema'
 import { uploadImageMiddleware } from '../middlewares/multerUpload'
-import { GetUserByUserNameSchema } from '../schemas/user.schema'
 
 const router = express.Router()
+
+router.get(
+	'/api/user/id/:id',
+	validateResource(GetUserByIdSchema),
+	getUserByIdHandler
+)
 
 router.post(
 	'/api/user/signup',

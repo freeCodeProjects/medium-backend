@@ -98,6 +98,12 @@ export const GetUserByUserNameSchema = object({
 	}).strict()
 })
 
+export const GetUserByIdSchema = object({
+	params: object({
+		id: string()
+	}).strict()
+})
+
 export const IsUserNameUniqueSchema = object({
 	query: object({
 		userName: string().min(3).max(60)
@@ -128,3 +134,4 @@ export type PreviouslyReadParams = TypeOf<typeof PreviouslyReadSchema>['params']
 export type GetUserByUserNameParams = TypeOf<
 	typeof GetUserByUserNameSchema
 >['params']
+export type GetUserByIdParams = TypeOf<typeof GetUserByIdSchema>['params']
