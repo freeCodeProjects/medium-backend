@@ -162,14 +162,7 @@ export async function getLatestBlogHandler(
 			BlogProjection,
 			{
 				sort: { publishedAt: -1 },
-				limit: parseInt(process.env.NUMBER_OF_DOCUMENT_PER_REQUEST as string),
-				populate: {
-					path: 'user',
-					options: {
-						lean: true,
-						select: UserProjection
-					}
-				}
+				limit: parseInt(process.env.NUMBER_OF_DOCUMENT_PER_REQUEST as string)
 			}
 		)
 		return res.status(200).send(blogs)
@@ -183,14 +176,7 @@ export async function getTrendingBlogHandler(req: Request, res: Response) {
 	try {
 		const blogs = await findAllBlog({ isPublished: true }, BlogProjection, {
 			sort: { clapsCount: -1, publishedAt: -1 },
-			limit: 6,
-			populate: {
-				path: 'user',
-				options: {
-					lean: true,
-					select: UserProjection
-				}
-			}
+			limit: 6
 		})
 		return res.status(200).send(blogs)
 	} catch (e: any) {
