@@ -135,15 +135,7 @@ export async function getBlogBySlugHandler(
 	res: Response
 ) {
 	try {
-		const blog = await findBlog({ slug: req.params.slug }, BlogProjection, {
-			populate: {
-				path: 'user',
-				options: {
-					lean: true,
-					select: UserProjection
-				}
-			}
-		})
+		const blog = await findBlog({ slug: req.params.slug }, BlogProjection)
 		if (!blog) {
 			return res.status(404).send({ message: 'Blog not found.' })
 		}
