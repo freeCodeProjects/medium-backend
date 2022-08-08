@@ -26,7 +26,11 @@ export interface Blog {
 const BlogSchema = new Schema<Blog>(
 	{
 		title: { type: String, default: 'untitled story', trim: true },
-		slug: { type: String, unique: true },
+		slug: {
+			type: String,
+			unique: true,
+			sparse: true
+		},
 		publishedTitle: { type: String, default: 'untitled story', trim: true },
 		subTitle: { type: String, default: '', trim: true },
 		content: {
