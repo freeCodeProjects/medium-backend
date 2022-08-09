@@ -51,6 +51,10 @@ export async function addFollowerController(
 		//id of person who is following
 		const followerId = new Types.ObjectId(req.user?._id)
 
+		if (followingId.toString() === followerId.toString()) {
+			return res.status(400).send({ message: 'User cannot follow itself.' })
+		}
+
 		const id = `follower:${followerId}-following:${followingId}`
 		//add the follower to collection
 		const follower = await addFollower({
