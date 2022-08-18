@@ -4,8 +4,7 @@ import {
 	PublishBlogParams,
 	PublishBlogInput,
 	GetBookMarkOrPreviouslyReadInput,
-	GetUserPublishedBlogInput,
-	GetUserDraftBlogInput,
+	GetUserPublishedBlogQuery,
 	GetBlogBySlugParams,
 	GetBlogByIdParams,
 	AddBlogInput,
@@ -45,7 +44,10 @@ import {
 	pinterestIframeHeight
 } from '../utils/iframeHeight'
 import { getLinkPreview } from 'link-preview-js'
-import { GetLatestBlogQuery } from '../schemas/blog.schema'
+import {
+	GetLatestBlogQuery,
+	GetUserDraftBlogQuery
+} from '../schemas/blog.schema'
 
 export async function addBlogHandler(
 	req: Request<{}, {}, AddBlogInput>,
@@ -237,19 +239,19 @@ export async function getBookMarkOrPreviouslyReadHandler(
 }
 
 export async function getUserDraftBlogHandler(
-	req: Request<{}, {}, GetUserDraftBlogInput>,
+	req: Request<{}, {}, {}, GetUserDraftBlogQuery>,
 	res: Response
 ) {
 	try {
 		const blogs = await findAllBlog(
-			req.body.beforeTime
+			req.query.beforeTime
 				? {
 						userId: req.user?._id,
-						status: 'draft',
-						updatedAt: { $lt: req.body.beforeTime }
+						isPublished: false,
+						updatedAt: { $lt: req.query.beforeTime }
 				  }
-				: { userId: req.user?._id, status: 'draft' },
-			BlogProjection,
+				: { userId: req.user?._id, isPublished: false },
+			'',
 			{
 				sort: { updatedAt: -1 },
 				limit: parseInt(process.env.NUMBER_OF_DOCUMENT_PER_REQUEST as string)
@@ -263,19 +265,19 @@ export async function getUserDraftBlogHandler(
 }
 
 export async function getUserPublishedBlogHandler(
-	req: Request<{}, {}, GetUserPublishedBlogInput>,
+	req: Request<{}, {}, {}, GetUserPublishedBlogQuery>,
 	res: Response
 ) {
 	try {
 		const blogs = await findAllBlog(
-			req.body.beforeTime
+			req.query.beforeTime
 				? {
 						userId: req.user?._id,
-						status: 'published',
-						publishedAt: { $lt: req.body.beforeTime }
+						isPublished: true,
+						publishedAt: { $lt: req.query.beforeTime }
 				  }
-				: { userId: req.user?._id, status: 'published' },
-			BlogProjection,
+				: { userId: req.user?._id, isPublished: true },
+			'',
 			{
 				sort: { publishedAt: -1 },
 				limit: parseInt(process.env.NUMBER_OF_DOCUMENT_PER_REQUEST as string)

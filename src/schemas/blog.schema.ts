@@ -61,13 +61,13 @@ export const GetBookMarkOrPreviouslyReadSchema = object({
 })
 
 export const GetUserDraftBlogSchema = object({
-	body: object({
+	query: object({
 		beforeTime: string()
 	}).strict()
 })
 
 export const GetUserPublishedBlogSchema = object({
-	body: object({
+	query: object({
 		beforeTime: string()
 	}).strict()
 })
@@ -109,12 +109,12 @@ export type GetBlogBySlugParams = TypeOf<typeof GetBlogBySlugSchema>['params']
 export type GetBookMarkOrPreviouslyReadInput = TypeOf<
 	typeof GetBookMarkOrPreviouslyReadSchema
 >['body']
-export type GetUserDraftBlogInput = TypeOf<
+export type GetUserDraftBlogQuery = TypeOf<
 	typeof GetUserDraftBlogSchema
->['body']
-export type GetUserPublishedBlogInput = TypeOf<
+>['query']
+export type GetUserPublishedBlogQuery = TypeOf<
 	typeof GetUserPublishedBlogSchema
->['body']
+>['query']
 export type DeleteBlogParams = TypeOf<typeof DeleteBlogSchema>['params']
 export type UploadEditorImageUrlInput = TypeOf<
 	typeof UploadEditorImageUrlSchema
