@@ -1,4 +1,4 @@
-import { number, object, preprocess, string, TypeOf } from 'zod'
+import { z, number, object, preprocess, string, TypeOf } from 'zod'
 
 export const EditorDataSchema = object({
 	time: number(),
@@ -60,15 +60,10 @@ export const GetBookMarkOrPreviouslyReadSchema = object({
 	}).strict()
 })
 
-export const GetUserDraftBlogSchema = object({
+export const GetUserBlogsSchema = object({
 	query: object({
-		beforeTime: string()
-	}).strict()
-})
-
-export const GetUserPublishedBlogSchema = object({
-	query: object({
-		beforeTime: string()
+		beforeTime: string(),
+		isPublished: z.enum(['true', 'false'])
 	}).strict()
 })
 
@@ -109,12 +104,6 @@ export type GetBlogBySlugParams = TypeOf<typeof GetBlogBySlugSchema>['params']
 export type GetBookMarkOrPreviouslyReadInput = TypeOf<
 	typeof GetBookMarkOrPreviouslyReadSchema
 >['body']
-export type GetUserDraftBlogQuery = TypeOf<
-	typeof GetUserDraftBlogSchema
->['query']
-export type GetUserPublishedBlogQuery = TypeOf<
-	typeof GetUserPublishedBlogSchema
->['query']
 export type DeleteBlogParams = TypeOf<typeof DeleteBlogSchema>['params']
 export type UploadEditorImageUrlInput = TypeOf<
 	typeof UploadEditorImageUrlSchema
@@ -124,3 +113,4 @@ export type EditorIframeHeightQuery = TypeOf<
 >['query']
 export type EditorLinkQuery = TypeOf<typeof EditorLinkSchema>['query']
 export type EditorData = TypeOf<typeof EditorDataSchema>
+export type GetUserBlogsQuery = TypeOf<typeof GetUserBlogsSchema>['query']

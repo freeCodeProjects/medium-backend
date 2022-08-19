@@ -9,8 +9,7 @@ import {
 	getBookMarkOrPreviouslyReadHandler,
 	getLatestBlogHandler,
 	getTrendingBlogHandler,
-	getUserDraftBlogHandler,
-	getUserPublishedBlogHandler,
+	getUserBlogsHandler,
 	publishBlogHandler,
 	updateBlogHandler,
 	uploadEditorImageFileHandler,
@@ -22,7 +21,7 @@ import {
 } from '../middlewares/authMiddleware'
 import { uploadImageMiddleware } from '../middlewares/multerUpload'
 import { validateResource } from '../middlewares/validateResource'
-import { EditorLinkSchema } from '../schemas/blog.schema'
+import { EditorLinkSchema, GetUserBlogsSchema } from '../schemas/blog.schema'
 import {
 	UploadEditorImageUrlSchema,
 	EditorIframeHeightSchema
@@ -35,8 +34,6 @@ import {
 } from '../schemas/blog.schema'
 import {
 	GetBlogBySlugSchema,
-	GetUserDraftBlogSchema,
-	GetUserPublishedBlogSchema,
 	GetBookMarkOrPreviouslyReadSchema,
 	GetLatestBlogSchema,
 	PublishBlogSchema
@@ -89,15 +86,9 @@ router.get(
 )
 
 router.get(
-	'/api/blog/draft',
-	[authMiddleware, validateResource(GetUserDraftBlogSchema)],
-	getUserDraftBlogHandler
-)
-
-router.get(
-	'/api/blog/published',
-	[authMiddleware, validateResource(GetUserPublishedBlogSchema)],
-	getUserPublishedBlogHandler
+	'/api/user/blogs',
+	[authMiddleware, validateResource(GetUserBlogsSchema)],
+	getUserBlogsHandler
 )
 
 router.delete(

@@ -4,12 +4,12 @@ import {
 	PublishBlogParams,
 	PublishBlogInput,
 	GetBookMarkOrPreviouslyReadInput,
-	GetUserPublishedBlogQuery,
 	GetBlogBySlugParams,
 	GetBlogByIdParams,
 	AddBlogInput,
 	UpdateBlogParams,
-	UpdateBlogInput
+	UpdateBlogInput,
+	GetUserBlogsQuery
 } from '../schemas/blog.schema'
 import {
 	addBlog,
@@ -44,10 +44,7 @@ import {
 	pinterestIframeHeight
 } from '../utils/iframeHeight'
 import { getLinkPreview } from 'link-preview-js'
-import {
-	GetLatestBlogQuery,
-	GetUserDraftBlogQuery
-} from '../schemas/blog.schema'
+import { GetLatestBlogQuery } from '../schemas/blog.schema'
 
 export async function addBlogHandler(
 	req: Request<{}, {}, AddBlogInput>,
@@ -238,19 +235,21 @@ export async function getBookMarkOrPreviouslyReadHandler(
 	}
 }
 
-export async function getUserDraftBlogHandler(
-	req: Request<{}, {}, {}, GetUserDraftBlogQuery>,
+export async function getUserBlogsHandler(
+	req: Request<{}, {}, {}, GetUserBlogsQuery>,
 	res: Response
 ) {
+	const beforeTime = req.query.beforeTime
+	const isPublished = req.query.isPublished === 'true'
 	try {
 		const blogs = await findAllBlog(
-			req.query.beforeTime
+			beforeTime
 				? {
 						userId: req.user?._id,
-						isPublished: false,
-						updatedAt: { $lt: req.query.beforeTime }
+						isPublished,
+						updatedAt: { $lt: beforeTime }
 				  }
-				: { userId: req.user?._id, isPublished: false },
+				: { userId: req.user?._id, isPublished },
 			'',
 			{
 				sort: { updatedAt: -1 },
@@ -259,33 +258,11 @@ export async function getUserDraftBlogHandler(
 		)
 		return res.status(200).send(blogs)
 	} catch (e: any) {
-		logger.error(`getUserDraftBlogHandler ${JSON.stringify(e)}`)
-		return res.status(500).send({ message: e.message })
-	}
-}
-
-export async function getUserPublishedBlogHandler(
-	req: Request<{}, {}, {}, GetUserPublishedBlogQuery>,
-	res: Response
-) {
-	try {
-		const blogs = await findAllBlog(
-			req.query.beforeTime
-				? {
-						userId: req.user?._id,
-						isPublished: true,
-						publishedAt: { $lt: req.query.beforeTime }
-				  }
-				: { userId: req.user?._id, isPublished: true },
-			'',
-			{
-				sort: { publishedAt: -1 },
-				limit: parseInt(process.env.NUMBER_OF_DOCUMENT_PER_REQUEST as string)
-			}
+		logger.error(
+			`getUser${
+				isPublished ? 'Published' : 'Draft'
+			}BlogHandler, ${JSON.stringify(e)}`
 		)
-		return res.status(200).send(blogs)
-	} catch (e: any) {
-		logger.error(`getUserPublishedBlogHandler ${JSON.stringify(e)}`)
 		return res.status(500).send({ message: e.message })
 	}
 }
