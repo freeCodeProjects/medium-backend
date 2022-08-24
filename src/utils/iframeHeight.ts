@@ -12,13 +12,20 @@ export const calculateHeightHelper = (
 }
 
 export const launchBrowser = async () => {
+	//Replace puppeteer.launch with puppeteer.connect
+
 	const browser = await puppeteer.launch({
 		headless: true
 	})
 
-	//Replace puppeteer.launch with puppeteer.connect
+	//browserless on cloud
 	// const browser = await puppeteer.connect({
 	// 	browserWSEndpoint: `wss://chrome.browserless.io?token=${process.env.BROWSERLESS_API_KEY}`
+	// })
+
+	//browserless deployed on railway.app
+	// const browser = await puppeteer.connect({
+	// 	browserWSEndpoint: `wss://browserless-production-4c08.up.railway.app?token=${process.env.BROWSERLESS_API_KEY}`
 	// })
 
 	return browser
