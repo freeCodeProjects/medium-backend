@@ -6,10 +6,10 @@ import {
 	editorLinkHandler,
 	getBlogByIdHandler,
 	getBlogBySlugHandler,
-	getBookMarkOrPreviouslyReadHandler,
 	getLatestBlogHandler,
 	getTrendingBlogHandler,
 	getUserBlogsHandler,
+	getUserListHandler,
 	publishBlogHandler,
 	updateBlogHandler,
 	uploadEditorImageFileHandler,
@@ -21,7 +21,11 @@ import {
 } from '../middlewares/authMiddleware'
 import { uploadImageMiddleware } from '../middlewares/multerUpload'
 import { validateResource } from '../middlewares/validateResource'
-import { EditorLinkSchema, GetUserBlogsSchema } from '../schemas/blog.schema'
+import {
+	EditorLinkSchema,
+	GetUserBlogsSchema,
+	GetUserListSchema
+} from '../schemas/blog.schema'
 import {
 	UploadEditorImageUrlSchema,
 	EditorIframeHeightSchema
@@ -34,7 +38,6 @@ import {
 } from '../schemas/blog.schema'
 import {
 	GetBlogBySlugSchema,
-	GetBookMarkOrPreviouslyReadSchema,
 	GetLatestBlogSchema,
 	PublishBlogSchema
 } from '../schemas/blog.schema'
@@ -74,15 +77,9 @@ router.get(
 router.get('/api/blog/trending', getTrendingBlogHandler)
 
 router.get(
-	'/api/blog/bookmarks',
-	[authMiddleware, validateResource(GetBookMarkOrPreviouslyReadSchema)],
-	getBookMarkOrPreviouslyReadHandler
-)
-
-router.get(
-	'/api/blog/previouslyRead',
-	[authMiddleware, validateResource(GetBookMarkOrPreviouslyReadSchema)],
-	getBookMarkOrPreviouslyReadHandler
+	'/api/user/list',
+	[authMiddleware, validateResource(GetUserListSchema)],
+	getUserListHandler
 )
 
 router.get(

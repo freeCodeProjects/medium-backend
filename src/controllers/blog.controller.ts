@@ -3,7 +3,6 @@ import { logger } from '../utils/logger'
 import {
 	PublishBlogParams,
 	PublishBlogInput,
-	GetBookMarkOrPreviouslyReadInput,
 	GetBlogBySlugParams,
 	GetBlogByIdParams,
 	AddBlogInput,
@@ -44,7 +43,7 @@ import {
 	pinterestIframeHeight
 } from '../utils/iframeHeight'
 import { getLinkPreview } from 'link-preview-js'
-import { GetLatestBlogQuery } from '../schemas/blog.schema'
+import { GetLatestBlogQuery, GetUserListQuery } from '../schemas/blog.schema'
 
 export async function addBlogHandler(
 	req: Request<{}, {}, AddBlogInput>,
@@ -184,17 +183,12 @@ export async function getTrendingBlogHandler(req: Request, res: Response) {
 	}
 }
 
-export async function getBookMarkOrPreviouslyReadHandler(
-	req: Request<{}, {}, GetBookMarkOrPreviouslyReadInput>,
+export async function getUserListHandler(
+	req: Request<{}, {}, {}, GetUserListQuery>,
 	res: Response
 ) {
-	let type: 'bookmarks' | 'previouslyRead' = 'bookmarks'
+	const { beforeId, type } = req.query
 	try {
-		if (req.path.includes('PreviouslyRead')) {
-			type = 'previouslyRead'
-		}
-
-		const { beforeId } = req.body
 		const allDocs = req.user![type]
 		let currDocs: Types.ObjectId[] = []
 
@@ -202,7 +196,6 @@ export async function getBookMarkOrPreviouslyReadHandler(
 			process.env.NUMBER_OF_DOCUMENT_PER_REQUEST as string
 		)
 
-		//get last 2 bookmarks in reverse order
 		if (!beforeId) {
 			currDocs = allDocs.slice(-docCount).reverse()
 		} else {
@@ -210,25 +203,17 @@ export async function getBookMarkOrPreviouslyReadHandler(
 			currDocs = allDocs.slice(Math.max(0, idx - docCount), idx).reverse()
 		}
 
-		const docs = await findAllBlog({ _id: { $in: currDocs } }, BlogProjection, {
-			populate: {
-				path: 'user',
-				options: {
-					lean: true,
-					select: UserProjection
-				}
-			}
-		})
+		const blogs = await findAllBlog({ _id: { $in: currDocs } }, BlogProjection)
 
-		//Sort docs by the order of their _id values in currDocs.
-		docs?.sort(function (a, b) {
+		//Sort blogs by the order of their _id values in currblogs.
+		blogs?.sort(function (a, b) {
 			return (
 				currDocs.findIndex((id) => a._id.equals(id)) -
 				currDocs.findIndex((id) => b._id.equals(id))
 			)
 		})
 
-		return res.status(200).send(docs)
+		return res.status(200).send(blogs)
 	} catch (e: any) {
 		logger.error(`get${type}Handler ${JSON.stringify(e)}`)
 		return res.status(500).send({ message: e.message })

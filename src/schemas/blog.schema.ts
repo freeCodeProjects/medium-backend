@@ -54,9 +54,10 @@ export const GetLatestBlogSchema = object({
 	}).strict()
 })
 
-export const GetBookMarkOrPreviouslyReadSchema = object({
-	body: object({
-		beforeId: string()
+export const GetUserListSchema = object({
+	query: object({
+		beforeId: string(),
+		type: z.enum(['bookmarks', 'previouslyRead'])
 	}).strict()
 })
 
@@ -101,9 +102,7 @@ export type GetBlogByIdParams = TypeOf<typeof GetBlogByIdSchema>['params']
 export type PublishBlogParams = TypeOf<typeof PublishBlogSchema>['params']
 export type GetLatestBlogQuery = TypeOf<typeof GetLatestBlogSchema>['query']
 export type GetBlogBySlugParams = TypeOf<typeof GetBlogBySlugSchema>['params']
-export type GetBookMarkOrPreviouslyReadInput = TypeOf<
-	typeof GetBookMarkOrPreviouslyReadSchema
->['body']
+export type GetUserListQuery = TypeOf<typeof GetUserListSchema>['query']
 export type DeleteBlogParams = TypeOf<typeof DeleteBlogSchema>['params']
 export type UploadEditorImageUrlInput = TypeOf<
 	typeof UploadEditorImageUrlSchema
