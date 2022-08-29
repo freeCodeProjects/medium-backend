@@ -43,7 +43,11 @@ import {
 	pinterestIframeHeight
 } from '../utils/iframeHeight'
 import { getLinkPreview } from 'link-preview-js'
-import { GetLatestBlogQuery, GetUserListQuery } from '../schemas/blog.schema'
+import {
+	GetLatestBlogQuery,
+	GetUserListQuery,
+	GetUserPublicBlogsQuery
+} from '../schemas/blog.schema'
 
 export async function addBlogHandler(
 	req: Request<{}, {}, AddBlogInput>,
@@ -248,6 +252,33 @@ export async function getUserBlogsHandler(
 				isPublished ? 'Published' : 'Draft'
 			}BlogHandler, ${JSON.stringify(e)}`
 		)
+		return res.status(500).send({ message: e.message })
+	}
+}
+
+export async function getUserPublicBlogHandler(
+	req: Request<{}, {}, {}, GetUserPublicBlogsQuery>,
+	res: Response
+) {
+	try {
+		const publishedAtTime = req.query.beforeTime || new Date()
+		const userId = req.query.userId
+
+		const blogs = await findAllBlog(
+			{
+				userId: new Types.ObjectId(userId),
+				isPublished: true,
+				publishedAt: { $lt: publishedAtTime }
+			},
+			BlogProjection,
+			{
+				sort: { publishedAt: -1 },
+				limit: parseInt(process.env.NUMBER_OF_DOCUMENT_PER_REQUEST as string)
+			}
+		)
+		return res.status(200).send(blogs)
+	} catch (e: any) {
+		logger.error(`GetUserPublicBlogHandler ${JSON.stringify(e)}`)
 		return res.status(500).send({ message: e.message })
 	}
 }

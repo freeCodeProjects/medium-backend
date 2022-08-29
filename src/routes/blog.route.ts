@@ -10,6 +10,7 @@ import {
 	getTrendingBlogHandler,
 	getUserBlogsHandler,
 	getUserListHandler,
+	getUserPublicBlogHandler,
 	publishBlogHandler,
 	updateBlogHandler,
 	uploadEditorImageFileHandler,
@@ -21,6 +22,7 @@ import {
 } from '../middlewares/authMiddleware'
 import { uploadImageMiddleware } from '../middlewares/multerUpload'
 import { validateResource } from '../middlewares/validateResource'
+import { GetUserPublicBlogSchema } from '../schemas/blog.schema'
 import {
 	EditorLinkSchema,
 	GetUserBlogsSchema,
@@ -86,6 +88,12 @@ router.get(
 	'/api/user/blogs',
 	[authMiddleware, validateResource(GetUserBlogsSchema)],
 	getUserBlogsHandler
+)
+
+router.get(
+	'/api/user/publicBlogs',
+	[validateResource(GetUserPublicBlogSchema)],
+	getUserPublicBlogHandler
 )
 
 router.delete(

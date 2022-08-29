@@ -68,6 +68,13 @@ export const GetUserBlogsSchema = object({
 	}).strict()
 })
 
+export const GetUserPublicBlogSchema = object({
+	query: object({
+		beforeTime: string(),
+		userId: string()
+	}).strict()
+})
+
 export const DeleteBlogSchema = object({
 	params: object({
 		id: string()
@@ -113,3 +120,6 @@ export type EditorIframeHeightQuery = TypeOf<
 export type EditorLinkQuery = TypeOf<typeof EditorLinkSchema>['query']
 export type EditorData = TypeOf<typeof EditorDataSchema>
 export type GetUserBlogsQuery = TypeOf<typeof GetUserBlogsSchema>['query']
+export type GetUserPublicBlogsQuery = TypeOf<
+	typeof GetUserPublicBlogSchema
+>['query']

@@ -178,7 +178,11 @@ export async function getUserByIdHandler(
 ) {
 	try {
 		const user = await findUser({ _id: req.params.id }, UserProjection)
-		return res.status(200).send(user)
+		if (!user) {
+			return res.status(404).send('User not found.')
+		} else {
+			return res.status(200).send(user)
+		}
 	} catch (e: any) {
 		logger.error(`getUserByIdHandler ${JSON.stringify(e)}`)
 		return res.status(500).send({ message: e.message })
@@ -194,7 +198,11 @@ export async function getUserByUserNameHandler(
 			{ userName: req.params.userName },
 			UserProjection
 		)
-		return res.status(200).send({ user })
+		if (!user) {
+			return res.status(404).send('User not found.')
+		} else {
+			return res.status(200).send(user)
+		}
 	} catch (e: any) {
 		logger.error(`getUserByUserNameHandler ${JSON.stringify(e)}`)
 		return res.status(500).send({ message: e.message })
