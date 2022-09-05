@@ -5,6 +5,9 @@ import { AddClapInput, GetClapParams } from '../schemas/clap.schema'
 import { ClapProjection } from '../utils/projection'
 import { Types } from 'mongoose'
 import { findBlog } from '../services/blog.service'
+import { Blog } from '../models/blog.model'
+import { Comment } from '../models/comment.model'
+import { findComment } from '../services/comment.service'
 
 export async function addClapHandler(
 	req: Request<{}, {}, AddClapInput>,
@@ -15,19 +18,25 @@ export async function addClapHandler(
 
 		// return if there is zero new claps
 		if (!newClaps) {
-			return res.status(200).send()
+			return res.status(200).send('No new claps to add.')
 		}
 
-		const blog = await findBlog({ _id: postId })
+		let post: Blog | Comment | null
 
-		if (!blog) {
+		if (relatedTo === 'blog') {
+			post = await findBlog({ _id: postId })
+		} else {
+			post = await findComment({ _id: postId })
+		}
+
+		if (!post) {
 			return res.status(404).send({ message: 'Post not found.' })
 		}
 
-		if (blog.userId.toString() === req.user?._id.toString()) {
+		if (post.userId.toString() === req.user?._id.toString()) {
 			return res
 				.status(400)
-				.send({ message: 'User cannot clap on there own blog.' })
+				.send({ message: 'User cannot clap on there own post.' })
 		}
 
 		const id = `userId:${req.user?._id}-postId:${postId}`
