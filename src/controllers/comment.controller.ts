@@ -3,9 +3,7 @@ import {
 	AddCommentInput,
 	UpdateCommentParams,
 	UpdateCommentInput,
-	DeleteCommentParams,
-	GetTopCommentInput,
-	GetLatestCommentInput
+	DeleteCommentParams
 } from '../schemas/comment.schema'
 import {
 	addComment,
@@ -14,112 +12,45 @@ import {
 	removeComment
 } from '../services/comment.service'
 import { logger } from '../utils/logger'
-import { UserProjection } from '../utils/projection'
+import { GetCommentsQuery } from '../schemas/comment.schema'
 
-const LIMIT = parseInt(process.env.NUMBER_OF_DOCUMENT_PER_REQUEST as string)
-
-export async function getTopCommentController(
-	req: Request<{}, {}, GetTopCommentInput>,
+export async function getCommentsController(
+	req: Request<{}, {}, {}, GetCommentsQuery>,
 	res: Response
 ) {
+	const { postId, beforeTime, sortBy, lastClapsCount } = req.query
 	try {
-		const { claps, previousId, postId } = req.body
+		const lastCreatedAtTime = beforeTime || new Date()
+		//useful when sorting by "top" comments
+		const minClapCount = lastClapsCount ? parseInt(lastClapsCount) : 999999999
 
-		const comments = await findAllComment(
-			previousId
-				? {
-						postId,
-						$or: [
-							{ clapsCount: { $lt: claps } },
-							{ clapsCount: claps, _id: { $lt: previousId } }
-						]
-				  }
-				: { postId },
-			'',
-			{
-				sort: { clapsCount: -1, _id: -1 },
-				limit: LIMIT,
-				populate: [
-					{
-						path: 'user',
-						select: UserProjection,
-						options: {
-							lean: true
-						}
-					},
-					{
-						path: 'replies',
-						populate: {
-							path: 'user',
-							select: UserProjection,
-							options: {
-								lean: true
-							}
-						},
-						options: {
-							sort: { clapsCount: -1 },
-							lean: true
-						}
-					}
+		let query
+		if (sortBy === 'top') {
+			query = {
+				postId,
+				$or: [
+					{ clapsCount: { $lt: minClapCount } },
+					{ clapsCount: minClapCount, createdAt: { $lt: lastCreatedAtTime } }
 				]
 			}
-		)
-
-		const haveMore = comments.length === LIMIT
-		return res.status(200).send({ comments, haveMore })
-	} catch (e: any) {
-		logger.error(`getTopCommentController ${JSON.stringify(e)}`)
-		return res.status(500).send({ message: e.message })
-	}
-}
-
-export async function getLatestCommentController(
-	req: Request<{}, {}, GetLatestCommentInput>,
-	res: Response
-) {
-	try {
-		const { postId, beforeTime } = req.body
-		const lastCreatedAtTime = beforeTime || new Date()
-
-		const comments = await findAllComment(
-			{
+		} else {
+			query = {
 				postId,
 				createdAt: { $lt: lastCreatedAtTime }
-			},
-			'',
-			{
-				sort: { createdAt: -1 },
-				limit: LIMIT,
-				populate: [
-					{
-						path: 'user',
-						select: UserProjection,
-						options: {
-							lean: true
-						}
-					},
-					{
-						path: 'replies',
-						populate: {
-							path: 'user',
-							select: UserProjection,
-							options: {
-								lean: true
-							}
-						},
-						options: {
-							lean: true,
-							sort: { createdAt: -1 }
-						}
-					}
-				]
 			}
-		)
+		}
 
-		const haveMore = comments.length === LIMIT
-		return res.status(200).send({ comments, haveMore })
+		const comments = await findAllComment(query, '', {
+			sort:
+				sortBy === 'top'
+					? { clapsCount: -1, createdAt: -1 }
+					: { createdAt: -1 },
+			limit: parseInt(process.env.NUMBER_OF_DOCUMENT_PER_REQUEST as string)
+		})
+
+		return res.status(200).send(comments)
 	} catch (e: any) {
-		logger.error(`getLatestCommentController ${JSON.stringify(e)}`)
+		logger.error(`get${sortBy}CommentController ${JSON.stringify(e)}`)
 		return res.status(500).send({ message: e.message })
 	}
 }
@@ -129,16 +60,8 @@ export async function addCommentController(
 	res: Response
 ) {
 	try {
-		const comment = await addComment({ userId: req.user?._id, ...req.body })
-
-		//@ts-ignore
-		await comment.populate({
-			path: 'user',
-			select: UserProjection,
-			options: { options: { lean: true } }
-		})
-
-		res.status(200).send({ comment })
+		await addComment({ userId: req.user?._id, ...req.body })
+		res.status(200).send('comment added!')
 	} catch (e: any) {
 		logger.error(`addCommentController ${JSON.stringify(e)}`)
 		return res.status(500).send({ message: e.message })
@@ -151,10 +74,15 @@ export async function updateCommentController(
 ) {
 	try {
 		const comment = await findAndUpdateComment(
-			{ _id: req.params.id },
+			{ _id: req.params.id, userId: req.user?._id },
 			{ ...req.body }
 		)
-		res.status(200).send({ comment })
+
+		if (!comment) {
+			return res.status(404).send({ message: 'Not Found.' })
+		}
+
+		return res.status(200).send('comment updated!')
 	} catch (e: any) {
 		logger.error(`updateCommentController ${JSON.stringify(e)}`)
 		return res.status(500).send({ message: e.message })
@@ -171,7 +99,11 @@ export async function deleteCommentController(
 			userId: req.user?._id
 		})
 
-		res.status(200).send({ result })
+		if (result.deletedCount === 0) {
+			return res.status(404).send({ message: 'Not found.' })
+		}
+
+		return res.status(200).send('Comment deleted.')
 	} catch (e: any) {
 		logger.error(`deleteCommentController ${JSON.stringify(e)}`)
 		return res.status(500).send({ message: e.message })

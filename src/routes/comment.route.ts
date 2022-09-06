@@ -2,18 +2,14 @@ import { Router } from 'express'
 import {
 	addCommentController,
 	deleteCommentController,
-	getLatestCommentController,
-	getTopCommentController,
+	getCommentsController,
 	updateCommentController
 } from '../controllers/comment.controller'
 import { authMiddleware } from '../middlewares/authMiddleware'
 import { validateResource } from '../middlewares/validateResource'
 import {
 	DeleteCommentSchema,
-	GetTopCommentSchema,
-	GetLatestCommentSchema
-} from '../schemas/comment.schema'
-import {
+	GetCommentsSchema,
 	AddCommentSchema,
 	UpdateCommentSchema
 } from '../schemas/comment.schema'
@@ -21,15 +17,9 @@ import {
 const router = Router()
 
 router.get(
-	'/api/topComments',
-	[authMiddleware, validateResource(GetTopCommentSchema)],
-	getTopCommentController
-)
-
-router.get(
-	'/api/latestComments',
-	[authMiddleware, validateResource(GetLatestCommentSchema)],
-	getLatestCommentController
+	'/api/comments',
+	validateResource(GetCommentsSchema),
+	getCommentsController
 )
 
 router.post(
