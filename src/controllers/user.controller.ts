@@ -116,12 +116,12 @@ export async function loginUserHandler(
 	const body = req.body
 	try {
 		const user = await findUser({ email: body.email })
-		if (!user?.verified) {
-			return res.status(401).send({ message: 'Account not verified.' })
-		}
 		if (!user) {
 			return res.status(404).send({ message: 'User not Found' })
 		} else {
+			if (!user?.verified) {
+				return res.status(401).send({ message: 'Account not verified.' })
+			}
 			const passwordMatch = await user.comparePassword(body.password)
 			if (!passwordMatch)
 				return res.status(404).send({ message: 'User not Found' })
