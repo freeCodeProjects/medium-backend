@@ -1,6 +1,7 @@
 import { addIframe, findIframe } from '../services/iframe.service'
 import { User } from '../models/user.model'
 import puppeteer from 'puppeteer'
+import { logger } from './logger'
 
 export const calculateHeightHelper = (
 	slope: number,
@@ -9,6 +10,19 @@ export const calculateHeightHelper = (
 ) => {
 	//using formulla y=mx + c
 	return Math.round(slope * width + yIntersection)
+}
+
+const calculateSlopeAndYintersection = (
+	x1: number,
+	y1: number,
+	x2: number,
+	y2: number
+) => {
+	const slope = (y2 - y1) / (x2 - x1)
+	//using formulla y = m(x - x1) + y1 here x = 0
+	const yIntersection = slope * (0 - x1) + y1
+
+	return { slope, yIntersection }
 }
 
 export const launchBrowser = async () => {
@@ -26,6 +40,11 @@ export const launchBrowser = async () => {
 	//browserless deployed on railway.app
 	// const browser = await puppeteer.connect({
 	// 	browserWSEndpoint: `wss://browserless-production-4c08.up.railway.app?token=${process.env.BROWSERLESS_API_KEY}`
+	// })
+
+	//browserless deployed on render.com
+	// const browser = await puppeteer.connect({
+	// 	browserWSEndpoint: `wss://browserless-bnp1.onrender.com?token=${process.env.BROWSERLESS_API_KEY}`
 	// })
 
 	return browser
@@ -177,13 +196,16 @@ export const instagramIframeHeight = async (
 			instagramIframeHeightHelper(browser, content)
 		])
 
-		const [x1, y1, x2, y2] = [360, heights[0]!, 650, heights[1]!]
+		logger.info(`heights : ${heights}`)
 
-		const slope = (y2 - y1) / (x2 - x1)
-		//using formulla y = m(x - x1) + y1 here x = 0
-		const yIntersection = slope * (0 - x1) + y1
+		const { slope, yIntersection } = calculateSlopeAndYintersection(
+			360,
+			heights[0]!,
+			650,
+			heights[1]!
+		)
 
-		if (slope <= 0) {
+		if (slope <= 0 || yIntersection <= 0) {
 			throw new Error('Wrong calculation.')
 		}
 
@@ -240,15 +262,16 @@ export const twitterIframeHeight = async (
 			throw new Error(`Error : ${error}`)
 		})
 
-		await browser.close()
+		logger.info(`heights : ${heights}`)
 
-		const [x1, y1, x2, y2] = [336, heights[0]!, 564, heights[1]!]
+		const { slope, yIntersection } = calculateSlopeAndYintersection(
+			336,
+			heights[0]!,
+			564,
+			heights[1]!
+		)
 
-		const slope = (y2 - y1) / (x2 - x1)
-		//using formulla y = m(x - x1) + y1 here x = 0
-		const yIntersection = slope * (0 - x1) + y1
-
-		if (slope <= 0) {
+		if (slope <= 0 || yIntersection <= 0) {
 			throw new Error('Wrong calculation.')
 		}
 
@@ -285,8 +308,7 @@ const twitterIframeHeightHelper = async (
 	})
 	await page.goto(url)
 	await page.addStyleTag({ content: 'body{overflow: hidden}' })
-
-	await page.waitForSelector('iframe')
+	await page.waitForSelector('.twitter-tweet iframe')
 	await page.waitForTimeout(5000)
 	const elem = await page.$('body')
 	const boundingBox = await elem?.boundingBox()
@@ -301,9 +323,9 @@ export const pinterestIframeHeight = async (
 	user: User | undefined
 ) => {
 	//max-width allowed is 548px
-	width = Math.min(width, 600)
+	width = Math.min(width, 548)
 
-	//min-width allowed is 320px
+	//min-width allowed is 236px
 	width = Math.max(width, 236)
 
 	//check if Iframe data already exists
@@ -328,13 +350,16 @@ export const pinterestIframeHeight = async (
 			throw new Error(`Error : ${error}`)
 		})
 
-		const [x1, y1, x2, y2] = [345, heights[0]!, 600, heights[1]!]
+		logger.info(`heights : ${heights}`)
 
-		const slope = (y2 - y1) / (x2 - x1)
-		//using formulla y = m(x - x1) + y1 here x = 0
-		const yIntersection = slope * (0 - x1) + y1
+		const { slope, yIntersection } = calculateSlopeAndYintersection(
+			345,
+			heights[0]!,
+			600,
+			heights[1]!
+		)
 
-		if (slope <= 0) {
+		if (slope <= 0 || yIntersection <= 0) {
 			throw new Error('Failed to calculate the height.')
 		}
 
