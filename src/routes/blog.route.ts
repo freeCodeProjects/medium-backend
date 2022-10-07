@@ -17,6 +17,10 @@ import {
 	uploadEditorImageUrlHandler
 } from '../controllers/blog.controller'
 import {
+	autoCompleteBlogsController,
+	searchBlogsController
+} from '../controllers/search.controller'
+import {
 	authMiddleware,
 	authMiddlewareWithoutError
 } from '../middlewares/authMiddleware'
@@ -131,5 +135,9 @@ router.get(
 	[authMiddleware, validateResource(GetBlogByIdSchema)],
 	getBlogByIdHandler
 )
+
+router.get('/api/blog/search', searchBlogsController)
+
+router.get('/api/blog/autocomplete', autoCompleteBlogsController)
 
 export default router
