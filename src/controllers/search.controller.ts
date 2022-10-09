@@ -3,7 +3,6 @@ import BlogModel from '../models/blog.model'
 import { logger } from '../utils/logger'
 
 export async function searchBlogsController(req: Request, res: Response) {
-	console.log(req.query.q)
 	try {
 		const docs = await BlogModel.aggregate([
 			{
@@ -45,15 +44,24 @@ export async function searchBlogsController(req: Request, res: Response) {
 			{
 				$project: {
 					publishedTitle: 1,
-					tags: 1,
-					isPublished: 1,
+					publishedContent: 1,
+					subTitle: 1,
 					slug: 1,
+					previewImage: 1,
+					tags: 1,
+					readTime: 1,
+					publishedAt: 1,
+					userId: 1,
+					clapsCount: 1,
+					responsesCount: 1,
+					status: 1,
+					isPublished: 1,
 					score: 1
 				}
+			},
+			{
+				$sort: { publishedAt: -1 }
 			}
-			// {
-			// 	$unset: ['title', 'content']
-			// }
 		])
 
 		res.status(200).send(docs)
