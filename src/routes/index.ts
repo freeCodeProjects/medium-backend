@@ -9,7 +9,7 @@ import notification from './notification.route'
 const router = express.Router()
 
 router.get('/api/healthcheck', (_, res) => {
-	res.status(200).send('Server is running!')
+	return res.status(200).send('Server is running!')
 })
 
 router.use(user)
