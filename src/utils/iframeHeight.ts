@@ -28,9 +28,14 @@ const calculateSlopeAndYintersection = (
 export const launchBrowser = async () => {
 	//Replace puppeteer.launch with puppeteer.connect
 
-	const browser = await puppeteer.launch({
-		headless: true
-	})
+	const browser =
+		process.env.NODE_ENV === 'development'
+			? await puppeteer.launch({
+					headless: false
+			  })
+			: await puppeteer.connect({
+					browserWSEndpoint: `wss://chrome.browserless.io?token=${process.env.BROWSERLESS_API_KEY}`
+			  })
 
 	//browserless on cloud
 	// const browser = await puppeteer.connect({
