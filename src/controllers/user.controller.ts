@@ -99,7 +99,7 @@ export async function verifyUserHandler(
 				secure: process.env.SECURE_COOKIE === 'true',
 				maxAge: parseInt(process.env.MAXAGE_COOKIE!),
 				domain: process.env.DOMAIN_COOKIE,
-				sameSite: false //`strict` will work in local but not in production
+				sameSite: 'none' //`strict` will work in local but not in production
 			})
 			res.status(200).send({ user: userData })
 		}
@@ -132,7 +132,7 @@ export async function loginUserHandler(
 				secure: process.env.SECURE_COOKIE === 'true',
 				maxAge: parseInt(process.env.MAXAGE_COOKIE!),
 				domain: process.env.DOMAIN_COOKIE,
-				sameSite: false //`strict` will work in local but not in production
+				sameSite: 'none' //`strict` will work in local but not in production
 			})
 			res.status(200).send({ user: userData })
 		}
