@@ -7,7 +7,7 @@ export async function createUser(input: Partial<User>): Promise<User> {
 	const userName = `${input.name
 		?.toLowerCase()
 		.replace(' ', '')}${nanoid()}`.replace(/ /g, '-')
-	const photo = `https://avatars.dicebear.com/api/bottts/${userName}.svg`
+	const photo = `https://api.dicebear.com/7.x/bottts/svg?seed=${userName}`
 
 	return UserModel.create({
 		photo,
